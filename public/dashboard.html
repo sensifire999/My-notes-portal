@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sentinel | Secure Node</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;500;700&display=swap');
+        body { background: #000; font-family: 'Space Grotesk', sans-serif; color: white; min-height: 100vh; overflow-x: hidden; }
+        .glass-panel { background: rgba(255, 255, 255, 0.02); backdrop-filter: blur(25px); border: 1px solid rgba(255, 255, 255, 0.08); }
+        #keyOverlay { position: fixed; inset: 0; background: #000; z-index: 5000; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        .key-input { background: transparent; border-bottom: 2px solid rgba(255,255,255,0.1); width: 100%; text-align: center; font-size: 1.8rem; color: #007aff; outline: none; letter-spacing: 0.4em; font-weight: 700; }
+        #pdfModal { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.98); z-index: 6000; flex-direction: column; }
+        #pdfModal.active { display: flex; }
+        .insta-link { color: #007aff; text-decoration: none; font-weight: bold; transition: 0.3s; }
+        .insta-link:hover { text-shadow: 0 0 10px rgba(0, 122, 255, 0.8); text-decoration: underline; }
+    </style>
+</head>
+<body>
+
+    <div id="keyOverlay">
+        <div class="max-w-md w-full text-center p-10 glass-panel rounded-[40px]">
+            <h2 class="text-3xl font-bold mb-2 tracking-tighter uppercase">Vault Locked</h2>
+            <p class="text-gray-500 mb-8 text-[11px] font-bold uppercase tracking-widest">
+                Key Required <br>
+                <a href="https://www.instagram.com/desi_anand_yt?igsh=ZjcwbHlzcTNibXJo" target="_blank" class="insta-link text-[13px] mt-2 inline-block">DM @desi_anand_yt FOR KEY</a>
+            </p>
+            <input type="text" id="accessKey" placeholder="••••••" class="key-input mb-10 uppercase">
+            <button onclick="unlockVault()" id="unlockBtn" class="w-full py-5 rounded-2xl font-bold text-lg bg-blue-600 hover:bg-blue-500 transition-all">AUTHORIZE SESSION</button>
+            <p id="keyError" class="text-red-500 mt-6 font-bold hidden text-xs tracking-widest">INVALID TOKEN</p>
+        </div>
+    </div>
+
+    <div id="dashboardContent" class="hidden opacity-0 transition-opacity duration-1000 p-6 md:p-12">
+        <nav class="flex justify-between items-center mb-16">
+            <div>
+                <h1 class="text-3xl font-black tracking-tighter">SENTINEL<span class="text-blue-500">.</span></h1>
+                <p class="text-gray-500 text-[9px] font-bold tracking-[0.2em] uppercase">
+                    Developer: <a href="https://www.instagram.com/desi_anand_yt?igsh=ZjcwbHlzcTNibXJo" target="_blank" class="insta-link">@desi_anand_yt</a>
+                </p>
+            </div>
+            <button onclick="logout()" class="text-red-500 font-bold px-5 py-2 border border-red-500/20 rounded-xl hover:bg-red-500/10 transition-all text-xs">TERMINATE</button>
+        </nav>
+
+        <div id="notesGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 text-white">
+            </div>
+    </div>
+
+    <div id="pdfModal">
+        <div class="p-4 flex justify-between items-center glass-panel border-b border-white/5">
+            <h3 id="pdfTitle" class="font-bold text-blue-500 uppercase text-[10px] tracking-widest">Secure View</h3>
+            <button onclick="closePDF()" class="bg-white text-black px-6 py-2 rounded-xl font-bold text-[10px] uppercase">Close</button>
+        </div>
+        <div class="flex-grow bg-black"><iframe id="pdfFrame" class="w-full h-full border-none"></iframe></div>
+    </div>
+
+    <script>
+        const user = localStorage.getItem('sentinel_user');
+        const activeKey = localStorage.getItem('sentinel_key');
+
+        if(!user) window.location.href = '/';
+
+        window.onload = () => {
+            if(activeKey) {
+                document.getElementById('keyOverlay').style.display = 'none';
+                document.getElementById('dashboardContent').classList.remove('hidden');
+                document.getElementById('dashboardContent').classList.add('opacity-100');
+                loadNotes();
+            }
+        }
+
+        async function unlockVault() {
+            const key = document.getElementById('accessKey').value.trim();
+            if(!key) return;
+            try {
+                const res = await fetch('/api/verify-key', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: user, key_code: key })
+                });
+                const data = await res.json();
+                if(data.success) {
+                    localStorage.setItem('sentinel_key', key);
+                    location.reload();
+                } else {
+                    document.getElementById('keyError').classList.remove('hidden');
+                }
+            } catch(e) { alert("Server Error"); }
+        }
+
+        async function loadNotes() {
+            const grid = document.getElementById('notesGrid');
+            try {
+                // 1. Fetch Notes and Key Info separately to avoid blocking
+                const notesRes = await fetch('/api/all-notes');
+                const notesData = await notesRes.json();
+
+                let expiryStr = "Loading...";
+                try {
+                    const keyRes = await fetch('/api/key-info?key=' + activeKey);
+                    const keyData = await keyRes.json();
+                    if(keyData.success) {
+                        expiryStr = new Date(keyData.expiry).toLocaleString();
+                    } else {
+                        expiryStr = "SESSION ACTIVE";
+                    }
+                } catch(e) { expiryStr = "SESSION ACTIVE"; }
+
+                // 2. Render Cards
+                if(notesData.success && notesData.notes && notesData.notes.length > 0) {
+                    grid.innerHTML = notesData.notes.map(n => {
+                        const title = n.subject || n.Subject || "Untitled";
+                        const link = n.link || n.Link || "#";
+                        
+                        return `
+                            <div class="glass-panel p-8 rounded-[40px] border border-white/5 relative">
+                                <p class="text-[10px] text-blue-500 font-bold mb-4 tracking-widest uppercase text-center border-b border-white/10 pb-2">
+                                    Expires: ${expiryStr}
+                                </p>
+                                <h2 class="text-xl font-bold mb-8 text-center min-h-[60px] flex items-center justify-center">${title}</h2>
+                                <button onclick="openPDF('${link}', '${title}')" 
+                                        class="w-full bg-white text-black py-4 rounded-2xl font-black uppercase text-[10px] tracking-widest hover:bg-blue-600 hover:text-white transition-all active:scale-95 shadow-xl">
+                                    DECRYPT & VIEW
+                                </button>
+                            </div>
+                        `;
+                    }).join('');
+                } else {
+                    grid.innerHTML = "<p class='col-span-full text-center'>NO DATA FOUND</p>";
+                }
+            } catch(e) { console.log(e); }
+        }
+
+        function openPDF(url, title) {
+            document.getElementById('pdfTitle').innerText = title;
+            let fileId = "";
+            if(url.includes('/d/')) fileId = url.split('/d/')[1]?.split('/')[0];
+            else if(url.includes('id=')) fileId = url.split('id=')[1]?.split('&')[0];
+
+            let finalUrl = fileId ? `https://drive.google.com/uc?export=view&id=${fileId}` : url;
+            document.getElementById('pdfFrame').src = `https://docs.google.com/viewer?url=${encodeURIComponent(finalUrl)}&embedded=true`;
+            document.getElementById('pdfModal').classList.add('active');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closePDF() {
+            document.getElementById('pdfModal').classList.remove('active');
+            document.getElementById('pdfFrame').src = "";
+            document.body.style.overflow = 'auto';
+        }
+
+        function logout() { localStorage.clear(); window.location.href = '/'; }
+    </script>
+</body>
+</html>
+

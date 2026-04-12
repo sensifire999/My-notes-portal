@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>iNotes | Register</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
+        body { background: #000; font-family: 'Inter', sans-serif; color: white; min-h-screen; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; padding: 20px; }
+        
+        .glow-blob { position: absolute; width: 450px; height: 450px; border-radius: 50%; filter: blur(100px); opacity: 0.15; z-index: 0; animation: rotate_glow 20s linear infinite; }
+        .blob-purple { background: #9b51e0; top: 10%; left: 10%; }
+        .blob-blue { background: #007aff; bottom: 10%; right: 10%; animation-delay: -10s; }
+        @keyframes rotate_glow { 0% { transform: translate(0,0); } 50% { transform: translate(40px, 30px); } 100% { transform: translate(0,0); } }
+
+        .hyper-glass { background: rgba(255, 255, 255, 0.02); backdrop-filter: blur(45px) saturate(180%); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 40px; box-shadow: 0 40px 90px rgba(0, 0, 0, 0.7); position: relative; z-index: 10; overflow: hidden; width: 100%; max-width: 450px; }
+        .sentinel-header { background: rgba(30, 30, 32, 0.95); border-bottom: 1px solid rgba(255, 255, 255, 0.08); padding: 25px; }
+
+        .btn-click-effect {
+            background: linear-gradient(135deg, #007aff 0%, #0056b3 100%);
+            color: #fff;
+            transition: transform 0.1s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s;
+        }
+        .btn-click-effect:active {
+            transform: scale(0.94);
+        }
+
+        .input-hyper { background: transparent; border: none; border-bottom: 2px solid rgba(255, 255, 255, 0.08); transition: 0.4s; color: white; width: 100%; padding: 15px 0; outline: none; font-size: 1.1rem; }
+        .input-hyper:focus { border-bottom-color: #007aff; }
+    </style>
+</head>
+<body>
+    <div class="glow-blob blob-purple"></div>
+    <div class="glow-blob blob-blue"></div>
+
+    <div class="hyper-glass">
+        <div class="sentinel-header flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <svg width="30" height="30" viewBox="0 0 512 512" fill="none">
+                    <path d="M256 46C158.4 46 72 108.8 72 206.4V318.4C72 411.2 158.4 466 256 466C353.6 466 440 411.2 440 318.4V206.4C440 108.8 353.6 46 256 46Z" stroke="white" stroke-width="15"/>
+                    <path d="M190 200C190 200 220 190 256 190C292 190 322 200 322 200V350C322 350 292 340 256 340C220 340 190 350 190 350V200Z" fill="white"/>
+                    <circle cx="256" cy="120" r="22" fill="#007aff" />
+                </svg>
+                <span class="text-lg font-bold">iNotes Sentinel</span>
+            </div>
+            <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+        </div>
+
+        <div class="p-10 pt-8">
+            <h1 class="text-4xl font-black mb-2">Register</h1>
+            <p class="text-gray-500 text-sm mb-10 font-bold uppercase tracking-widest">Secure Tunnel Entry</p>
+
+            <form id="regForm" class="space-y-8">
+                <input type="text" id="regUser" placeholder="Username" required class="input-hyper">
+                <input type="password" id="regPass" placeholder="Password" required class="input-hyper">
+                <button type="submit" id="regBtn" class="w-full py-5 rounded-2xl font-black text-xl btn-click-effect mt-6 uppercase">Register Securely</button>
+            </form>
+            <p class="mt-10 text-center text-gray-500 text-sm">Registered? <a href="login.html" class="text-blue-500 font-bold">Sign In</a></p>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('regForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const user = document.getElementById('regUser').value;
+            const pass = document.getElementById('regPass').value;
+            const btn = document.getElementById('regBtn');
+            btn.innerText = "PROCESSING...";
+            try {
+                const res = await fetch('/api/register', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ user, pass }) });
+                const data = await res.json();
+                if (data.success) { alert("Account Created!"); window.location.href = 'login.html'; }
+                else { alert(data.message); btn.innerText = "Register Securely"; }
+            } catch (err) { alert("Server Error"); btn.innerText = "Register Securely"; }
+        });
+    </script>
+</body>
+</html>
+
