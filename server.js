@@ -10,24 +10,26 @@ const { Telegraf, Markup } = require("telegraf");
 const { createClient } = require("@supabase/supabase-js");
 const moment = require("moment");
 
-// ── Initialize Express (Ye line missing thi) ────────────────
+// 1. Initialize Express
 const app = express();
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
 
-// ── Config ──────────────────────────────────────────────────
+// 2. Config
 const SUPABASE_URL  = process.env.SUPABASE_URL || "https://jecckogefamxionqdbby.supabase.co";
 const SUPABASE_KEY  = process.env.SUPABASE_KEY || "sb_publishable_qTXtquSTGI6VqJbuscf1lw_BA1AhG-_";
 const BOT_TOKEN     = process.env.BOT_TOKEN     || "8618816305:AAEcABZIZJtkIB5gRUq43bNtXYh82U0yZZc";
 const ADMIN_ID      = 8084057668;
 
+// 3. Create Client (Sirf EK baar likhna hai)
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// ── Server Listen ───────────────────────────────────────────
+// 4. Server Listen
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
+
 
 
 // ── Clients ─────────────────────────────────────────────────
