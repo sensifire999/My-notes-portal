@@ -10,12 +10,25 @@ const { Telegraf, Markup } = require("telegraf");
 const { createClient } = require("@supabase/supabase-js");
 const moment = require("moment");
 
+// ── Initialize Express (Ye line missing thi) ────────────────
+const app = express();
+app.use(express.json());
+app.use(express.static(path.join(__dirname, "public")));
+
 // ── Config ──────────────────────────────────────────────────
-const SUPABASE_URL  = "https://jecckogefamxionqdbby.supabase.co";
-const SUPABASE_KEY  = "sb_publishable_qTXtquSTGI6VqJbuscf1lw_BA1AhG-_";
-const BOT_TOKEN     = "8618816305:AAEcABZIZJtkIB5gRUq43bNtXYh82U0yZZc";
+const SUPABASE_URL  = process.env.SUPABASE_URL || "https://jecckogefamxionqdbby.supabase.co";
+const SUPABASE_KEY  = process.env.SUPABASE_KEY || "sb_publishable_qTXtquSTGI6VqJbuscf1lw_BA1AhG-_";
+const BOT_TOKEN     = process.env.BOT_TOKEN     || "8618816305:AAEcABZIZJtkIB5gRUq43bNtXYh82U0yZZc";
 const ADMIN_ID      = 8084057668;
-const PORT          = process.env.PORT || 3000;
+
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// ── Server Listen ───────────────────────────────────────────
+const PORT = process.env.PORT || 3000;
+app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT}`);
+});
+
 
 // ── Clients ─────────────────────────────────────────────────
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
