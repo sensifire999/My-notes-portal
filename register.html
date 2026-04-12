@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>iNotes | Register</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background: #000;
+            font-family: 'Inter', sans-serif;
+            color: white;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            position: relative;
+            padding: 20px;
+        }
+
+        /* ── Glow Blobs ── */
+        .glow-blob {
+            position: absolute;
+            width: 450px;
+            height: 450px;
+            border-radius: 50%;
+            filter: blur(100px);
+            opacity: 0.15;
+            z-index: 0;
+            animation: rotate_glow 20s linear infinite;
+        }
+        .blob-purple { background: #9b51e0; top: 10%; left: 10%; }
+        .blob-blue   { background: #007aff; bottom: 10%; right: 10%; animation-delay: -10s; }
+
+        @keyframes rotate_glow {
+            0%   { transform: translate(0, 0); }
+            50%  { transform: translate(40px, 30px); }
+            100% { transform: translate(0, 0); }
+        }
+
+        /* ── Glass Card ── */
+        .hyper-glass {
+            background: rgba(255, 255, 255, 0.02);
+            backdrop-filter: blur(45px) saturate(180%);
+            -webkit-backdrop-filter: blur(45px) saturate(180%);
+            border: 1px solid rgba(255, 255, 255, 0.06);
+            border-radius: 40px;
+            box-shadow: 0 40px 90px rgba(0, 0, 0, 0.7);
+            position: relative;
+            z-index: 10;
+            overflow: hidden;
+            width: 100%;
+            max-width: 450px;
+        }
+
+        /* ── Header ── */
+        .sentinel-header {
+            background: rgba(30, 30, 32, 0.95);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            padding: 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        /* ── Input ── */
+        .input-hyper {
+            background: transparent;
+            border: none;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.08);
+            transition: border-color 0.4s;
+            color: white;
+            width: 100%;
+            padding: 15px 0;
+            outline: none;
+            font-size: 1.1rem;
+            font-family: 'Inter', sans-serif;
+        }
+        .input-hyper::placeholder { color: rgba(255, 255, 255, 0.28); }
+        .input-hyper:focus { border-bottom-color: #007aff; }
+
+        /* ── Primary Button ── */
+        .btn-primary {
+            width: 100%;
+            padding: 18px;
+            border-radius: 18px;
+            font-family: 'Inter', sans-serif;
+            font-weight: 900;
+            font-size: 1.1rem;
+            letter-spacing: 0.04em;
+            text-transform: uppercase;
+            border: none;
+            cursor: pointer;
+            background: linear-gradient(135deg, #007aff 0%, #0056b3 100%);
+            color: #fff;
+            box-shadow: 0 8px 28px rgba(0, 122, 255, 0.35);
+            transition: transform 0.1s cubic-bezier(0.4, 0, 0.2, 1),
+                        box-shadow 0.2s,
+                        opacity 0.2s;
+            position: relative;
+            overflow: hidden;
+            margin-top: 8px;
+        }
+        .btn-primary:hover:not(:disabled) {
+            transform: translateY(-1px);
+            box-shadow: 0 12px 36px rgba(0, 122, 255, 0.45);
+        }
+        .btn-primary:active:not(:disabled) { transform: scale(0.96); }
+        .btn-primary:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* ── Status Box ── */
+        .status-box {
+            padding: 13px 16px;
+            border-radius: 14px;
+            font-size: 13.5px;
+            font-weight: 600;
+            line-height: 1.45;
+            margin-top: 18px;
+            display: none;
+        }
+        .status-box.error {
+            display: block;
+            background: rgba(255, 59, 48, 0.10);
+            border: 1px solid rgba(255, 59, 48, 0.28);
+            color: #ff6b6b;
+        }
+        .status-box.success {
+            display: block;
+            background: rgba(48, 209, 88, 0.10);
+            border: 1px solid rgba(48, 209, 88, 0.28);
+            color: #34d399;
+        }
+
+        /* ── Spinner ── */
+        .spinner {
+            display: inline-block;
+            width: 17px;
+            height: 17px;
+            border: 2px solid rgba(255, 255, 255, 0.30);
+            border-top-color: #fff;
+            border-radius: 50%;
+            animation: spin 0.55s linear infinite;
+            vertical-align: middle;
+            margin-right: 8px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
+        /* ── Password strength bar ── */
+        .strength-bar-wrap {
+            height: 3px;
+            background: rgba(255,255,255,0.06);
+            border-radius: 2px;
+            margin-top: 6px;
+            overflow: hidden;
+        }
+        .strength-bar {
+            height: 100%;
+            border-radius: 2px;
+            width: 0%;
+            transition: width 0.3s, background 0.3s;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="glow-blob blob-purple"></div>
+    <div class="glow-blob blob-blue"></div>
+
+    <div class="hyper-glass">
+
+        <!-- Header -->
+        <div class="sentinel-header">
+            <div style="display:flex; align-items:center; gap:12px;">
+                <svg width="30" height="30" viewBox="0 0 512 512" fill="none">
+                    <path d="M256 46C158.4 46 72 108.8 72 206.4V318.4C72 411.2 158.4 466 256 466C353.6 466 440 411.2 440 318.4V206.4C440 108.8 353.6 46 256 46Z" stroke="white" stroke-width="15"/>
+                    <path d="M190 200C190 200 220 190 256 190C292 190 322 200 322 200V350C322 350 292 340 256 340C220 340 190 350 190 350V200Z" fill="white"/>
+                    <circle cx="256" cy="120" r="22" fill="#007aff"/>
+                </svg>
+                <span style="font-size:1.1rem; font-weight:700;">iNotes Sentinel</span>
+            </div>
+            <div style="width:8px; height:8px; background:#30d158; border-radius:50%; animation: blink 2s infinite;"></div>
+        </div>
+
+        <!-- Body -->
+        <div style="padding: 40px; padding-top: 32px;">
+
+            <h1 style="font-size:2.4rem; font-weight:900; margin-bottom:6px;">Register</h1>
+            <p style="color:#6b7280; font-size:0.78rem; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; margin-bottom:38px;">
+                Secure Tunnel Entry
+            </p>
+
+            <form id="regForm" novalidate>
+
+                <!-- Username -->
+                <div style="margin-bottom: 28px;">
+                    <input
+                        type="text"
+                        id="regUser"
+                        placeholder="Username"
+                        autocomplete="off"
+                        autocapitalize="none"
+                        spellcheck="false"
+                        class="input-hyper"
+                    />
+                </div>
+
+                <!-- Password -->
+                <div style="margin-bottom: 10px;">
+                    <input
+                        type="password"
+                        id="regPass"
+                        placeholder="Password (min 4 chars)"
+                        autocomplete="new-password"
+                        class="input-hyper"
+                    />
+                    <!-- Strength indicator -->
+                    <div class="strength-bar-wrap">
+                        <div class="strength-bar" id="strengthBar"></div>
+                    </div>
+                </div>
+
+                <!-- Submit -->
+                <button type="submit" id="regBtn" class="btn-primary" style="margin-top:28px;">
+                    Register Securely
+                </button>
+
+            </form>
+
+            <!-- Status message (replaces alert) -->
+            <div id="statusBox" class="status-box"></div>
+
+            <p style="margin-top:28px; text-align:center; color:#6b7280; font-size:0.85rem;">
+                Already registered?
+                <a href="login.html" style="color:#007aff; font-weight:700; text-decoration:none;">Sign In</a>
+            </p>
+
+        </div>
+    </div>
+
+    <style>
+        @keyframes blink { 0%,100%{ opacity:1; } 50%{ opacity:0.3; } }
+    </style>
+
+    <script>
+        // ── Password strength indicator ───────────────────────────────────────
+        document.getElementById('regPass').addEventListener('input', function () {
+            const val = this.value;
+            const bar = document.getElementById('strengthBar');
+            let   pct = 0;
+            let   col = '#ff3b30';
+
+            if (val.length >= 4)  { pct = 33; col = '#ff9500'; }
+            if (val.length >= 8)  { pct = 66; col = '#007aff'; }
+            if (val.length >= 12) { pct = 100; col = '#30d158'; }
+
+            bar.style.width      = pct + '%';
+            bar.style.background = col;
+        });
+
+        // ── Show status message ───────────────────────────────────────────────
+        function showStatus(msg, type) {
+            const box      = document.getElementById('statusBox');
+            box.textContent = msg;
+            box.className   = 'status-box ' + type;
+        }
+
+        // ── Set button loading ────────────────────────────────────────────────
+        function setBtnLoading(loading) {
+            const btn  = document.getElementById('regBtn');
+            btn.disabled = loading;
+            btn.innerHTML = loading
+                ? '<span class="spinner"></span>PROCESSING...'
+                : 'Register Securely';
+        }
+
+        // ── Form submit ───────────────────────────────────────────────────────
+        document.getElementById('regForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            // Read and trim values
+            const user = document.getElementById('regUser').value.trim();
+            const pass = document.getElementById('regPass').value.trim();
+
+            // Client-side validation
+            if (!user) {
+                return showStatus('⚠ Username is required.', 'error');
+            }
+            if (user.length < 3) {
+                return showStatus('⚠ Username must be at least 3 characters.', 'error');
+            }
+            if (!pass) {
+                return showStatus('⚠ Password is required.', 'error');
+            }
+            if (pass.length < 4) {
+                return showStatus('⚠ Password must be at least 4 characters.', 'error');
+            }
+
+            setBtnLoading(true);
+            showStatus('', '');
+
+            try {
+                const res = await fetch('/api/register', {
+                    method:  'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    // ✅ Field names match server.js exactly: { user, pass }
+                    body:    JSON.stringify({ user, pass }),
+                });
+
+                // Guard: handle non-JSON response (e.g. Render 404 HTML page)
+                const contentType = res.headers.get('content-type') || '';
+                if (!contentType.includes('application/json')) {
+                    throw new Error(
+                        `Server returned status ${res.status}. ` +
+                        `Is the server running and /api/register route added?`
+                    );
+                }
+
+                const data = await res.json();
+
+                if (data.success) {
+                    showStatus('✅ ' + data.message + ' Redirecting to login…', 'success');
+                    // Save username so login page can pre-fill it (optional)
+                    localStorage.setItem('reg_user', data.username);
+                    setTimeout(() => {
+                        window.location.href = 'login.html';
+                    }, 1600);
+                } else {
+                    // data.message is always a string from server
+                    showStatus('❌ ' + (data.message || 'Registration failed. Try again.'), 'error');
+                    setBtnLoading(false);
+                }
+
+            } catch (err) {
+                showStatus('⚠ ' + err.message, 'error');
+                setBtnLoading(false);
+            }
+        });
+
+        // ── Enter key support ─────────────────────────────────────────────────
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                document.getElementById('regForm').dispatchEvent(new Event('submit'));
+            }
+        });
+    </script>
+
+</body>
+</html>

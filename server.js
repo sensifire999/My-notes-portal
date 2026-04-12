@@ -1,6 +1,6 @@
 // ╔══════════════════════════════════════════════════════════════════════════╗
 // ║         VIP-ANAND-7525 | SENTINEL iNOTES ECOSYSTEM                      ║
-// ║         server.js — Render.com Optimized Production Build               ║
+// ║         server.js — Final Full Working Build (Render Optimized)         ║
 // ║         Stack : Express.js · Telegraf · Supabase · Moment.js            ║
 // ╚══════════════════════════════════════════════════════════════════════════╝
 
@@ -19,9 +19,8 @@ const { createClient }     = require("@supabase/supabase-js");
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  SECTION 2 — ENVIRONMENT VARIABLES
-//  ✅ Render injects process.env.PORT automatically — never hardcode it.
-//  ✅ All secrets come from Render Dashboard → Environment → Add Variable.
-//  ✅ Fallbacks are provided so local dev still works without a .env file.
+//  Render Dashboard → Environment → Add Variable mein set karo
+//  Local dev ke liye fallback values diye hain
 // ─────────────────────────────────────────────────────────────────────────────
 
 const PORT         = process.env.PORT         || 10000;
@@ -31,23 +30,21 @@ const BOT_TOKEN    = process.env.BOT_TOKEN    || "8618816305:AAEcABZIZJtkIB5gRUq
 const ADMIN_ID     = Number(process.env.ADMIN_ID) || 8084057668;
 
 // ─────────────────────────────────────────────────────────────────────────────
-//  SECTION 3 — VALIDATE REQUIRED ENVIRONMENT VARIABLES ON STARTUP
-//  Crash early with a clear message if a critical variable is missing.
-//  This prevents silent runtime failures on Render.
+//  SECTION 3 — STARTUP VALIDATION
+//  Missing variable pe crash karo — silent failure se better hai
 // ─────────────────────────────────────────────────────────────────────────────
 
 (function validateEnv() {
   const required = { SUPABASE_URL, SUPABASE_KEY, BOT_TOKEN };
   const missing  = Object.entries(required)
-    .filter(([, v]) => !v || v.trim() === "")
+    .filter(([, v]) => !v || String(v).trim() === "")
     .map(([k])    => k);
 
   if (missing.length > 0) {
-    console.error(`\n❌  FATAL: Missing required environment variables: ${missing.join(", ")}`);
-    console.error("    Set them in Render Dashboard → Your Service → Environment.\n");
+    console.error(`\n❌  FATAL: Missing env variables: ${missing.join(", ")}`);
+    console.error("    Render Dashboard → Environment mein add karo.\n");
     process.exit(1);
   }
-
   console.log("✅  Environment variables validated.");
 })();
 
@@ -60,10 +57,10 @@ const bot      = new Telegraf(BOT_TOKEN);
 const app      = express();
 
 // ─────────────────────────────────────────────────────────────────────────────
-//  SECTION 5 — EXPRESS MIDDLEWARE  (order is critical — do not rearrange)
+//  SECTION 5 — EXPRESS MIDDLEWARE
+//  Order matter karta hai — bilkul mat badlo
 // ─────────────────────────────────────────────────────────────────────────────
 
-// 5-a  CORS — allow all origins; handles OPTIONS pre-flight for browser clients
 app.use(cors({
   origin:         "*",
   methods:        ["GET", "POST", "OPTIONS"],
@@ -71,24 +68,19 @@ app.use(cors({
 }));
 app.options("*", cors());
 
-// 5-b  Body parsers — MUST be declared before any route reads req.body
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
-// 5-c  Serve static files from /public (login.html, dashboard.html, assets)
 app.use(express.static(path.join(__dirname, "public")));
 
 // ─────────────────────────────────────────────────────────────────────────────
-//  SECTION 6 — RENDER HEALTH-CHECK ENDPOINT
-//  Render pings GET / or a custom path to confirm the service is alive.
-//  Returning 200 immediately prevents unnecessary restart cycles.
+//  SECTION 6 — RENDER HEALTH CHECK ENDPOINT
 // ─────────────────────────────────────────────────────────────────────────────
 
 app.get("/health", (req, res) => {
   res.status(200).json({
     status:    "ok",
     service:   "Sentinel iNotes",
-    version:   "3.0.0",
+    version:   "4.0.0",
     timestamp: moment().toISOString(),
   });
 });
@@ -97,18 +89,12 @@ app.get("/health", (req, res) => {
 //  SECTION 7 — UTILITY / HELPER FUNCTIONS
 // ─────────────────────────────────────────────────────────────────────────────
 
-/**
- * isAdmin — Strict equality using Number() cast.
- * Prevents false-negatives when Telegraf exposes ctx.from.id as a string.
- */
+/** isAdmin — Number() cast se string/int mismatch avoid hota hai */
 function isAdmin(ctx) {
   return Number(ctx.from?.id) === ADMIN_ID;
 }
 
-/**
- * generateKey — Random 4-char alphanumeric segment wrapped in VIP-XXXX-ANAND.
- * 36 chars in pool → 36^4 = 1,679,616 unique combinations.
- */
+/** generateKey — VIP-XXXX-ANAND format */
 function generateKey() {
   const POOL    = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
   let   segment = "";
@@ -118,13 +104,13 @@ function generateKey() {
   return `VIP-${segment}-ANAND`;
 }
 
-/** fmtDate — Human-readable timestamp. */
+/** fmtDate — Readable timestamp */
 function fmtDate(iso) {
   if (!iso) return "N/A";
   return moment(iso).format("DD MMM YYYY, hh:mm A");
 }
 
-/** dbErrMsg — Normalise a Supabase error object to a display string. */
+/** dbErrMsg — Supabase error ko readable string mein convert karo */
 function dbErrMsg(e) {
   return `❌ DB Error: ${e?.message ?? JSON.stringify(e)}`;
 }
@@ -171,7 +157,6 @@ bot.start(async (ctx) => {
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  SECTION 10 — BOT CALLBACK: CB_STATS
-//  Fetches live counts from all three tables + computes key usage ratio.
 // ─────────────────────────────────────────────────────────────────────────────
 
 bot.action("CB_STATS", async (ctx) => {
@@ -188,12 +173,12 @@ bot.action("CB_STATS", async (ctx) => {
         .eq("is_used", true),
     ]);
 
-    const totalUsers   = rUsers.count    ?? 0;
-    const totalNotes   = rNotes.count    ?? 0;
-    const totalKeys    = rKeysAll.count  ?? 0;
-    const usedKeys     = rKeysUsed.count ?? 0;
-    const unusedKeys   = totalKeys - usedKeys;
-    const usagePct     = totalKeys > 0
+    const totalUsers = rUsers.count    ?? 0;
+    const totalNotes = rNotes.count    ?? 0;
+    const totalKeys  = rKeysAll.count  ?? 0;
+    const usedKeys   = rKeysUsed.count ?? 0;
+    const unusedKeys = totalKeys - usedKeys;
+    const usagePct   = totalKeys > 0
       ? ((usedKeys / totalKeys) * 100).toFixed(1)
       : "0.0";
 
@@ -222,10 +207,9 @@ bot.action("CB_GENKEY", async (ctx) => {
   await ctx.answerCbQuery();
   await ctx.replyWithHTML(
     `<b>🔑 Generate an Access Key</b>\n\n` +
-    `Use the command below:\n` +
-    `<code>/gen_key &lt;minutes&gt;</code>\n\n` +
+    `Command:\n<code>/gen_key &lt;minutes&gt;</code>\n\n` +
     `<b>Example:</b> <code>/gen_key 60</code>\n` +
-    `<i>Creates a VIP-XXXX-ANAND key valid for the given minutes.</i>`
+    `<i>Creates a VIP-XXXX-ANAND key valid for given minutes.</i>`
   );
 });
 
@@ -238,16 +222,15 @@ bot.action("CB_ADDPDF", async (ctx) => {
   await ctx.answerCbQuery();
   await ctx.replyWithHTML(
     `<b>📄 Add or Update a PDF Note</b>\n\n` +
-    `Use the command below:\n` +
-    `<code>/update &lt;Subject&gt; | &lt;Link&gt;</code>\n\n` +
+    `Command:\n<code>/update &lt;Subject&gt; | &lt;Link&gt;</code>\n\n` +
     `<b>Example:</b>\n` +
     `<code>/update Physics Ch3 | https://drive.google.com/...</code>\n\n` +
-    `<i>Uses upsert — if the subject exists, the link is updated automatically.</i>`
+    `<i>Subject already exists? Link update ho jayega (upsert).</i>`
   );
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
-//  SECTION 13 — BOT CALLBACK: CB_USERS  (last 25 registrations)
+//  SECTION 13 — BOT CALLBACK: CB_USERS
 // ─────────────────────────────────────────────────────────────────────────────
 
 bot.action("CB_USERS", async (ctx) => {
@@ -265,8 +248,7 @@ bot.action("CB_USERS", async (ctx) => {
     if (!data || data.length === 0) return ctx.reply("📭 No users registered yet.");
 
     const lines = data.map(
-      (u, i) =>
-        `${i + 1}. <code>${u.username}</code>  —  <i>${fmtDate(u.created_at)}</i>`
+      (u, i) => `${i + 1}. <code>${u.username}</code>  —  <i>${fmtDate(u.created_at)}</i>`
     );
 
     await ctx.replyWithHTML(
@@ -285,13 +267,13 @@ bot.action("CB_SEARCH", async (ctx) => {
   if (!isAdmin(ctx)) return ctx.answerCbQuery("🚫 Access denied.");
   await ctx.answerCbQuery();
   await ctx.replyWithHTML(
-    `<b>🔍 Search for a User</b>\n\nSend:\n<code>/find &lt;username&gt;</code>\n\n` +
+    `<b>🔍 Search for a User</b>\n\nCommand:\n<code>/find &lt;username&gt;</code>\n\n` +
     `<b>Example:</b> <code>/find john_doe</code>`
   );
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
-//  SECTION 15 — BOT CALLBACK: CB_FLUSH  (remove expired unused keys)
+//  SECTION 15 — BOT CALLBACK: CB_FLUSH
 // ─────────────────────────────────────────────────────────────────────────────
 
 bot.action("CB_FLUSH", async (ctx) => {
@@ -313,7 +295,7 @@ bot.action("CB_FLUSH", async (ctx) => {
     await ctx.replyWithHTML(
       `<b>🗑 Flush Complete</b>\n\n` +
       `Removed <b>${removed}</b> expired, unused key(s).\n` +
-      `<i>Timestamp: ${moment().format("DD MMM YYYY, hh:mm A")}</i>`
+      `<i>${moment().format("DD MMM YYYY, hh:mm A")}</i>`
     );
   } catch (err) {
     await ctx.reply(`❌ Flush failed: ${err.message}`);
@@ -328,9 +310,8 @@ bot.action("CB_BAN", async (ctx) => {
   if (!isAdmin(ctx)) return ctx.answerCbQuery("🚫 Access denied.");
   await ctx.answerCbQuery();
   await ctx.replyWithHTML(
-    `<b>🚫 Ban / Remove a User</b>\n\nSend:\n<code>/ban &lt;username&gt;</code>\n\n` +
-    `<b>Example:</b> <code>/ban john_doe</code>\n\n` +
-    `<i>Permanently deletes the user from the users table.</i>`
+    `<b>🚫 Ban / Remove a User</b>\n\nCommand:\n<code>/ban &lt;username&gt;</code>\n\n` +
+    `<b>Example:</b> <code>/ban john_doe</code>`
   );
 });
 
@@ -342,7 +323,7 @@ bot.action("CB_BROADCAST", async (ctx) => {
   if (!isAdmin(ctx)) return ctx.answerCbQuery("🚫 Access denied.");
   await ctx.answerCbQuery();
   await ctx.replyWithHTML(
-    `<b>📢 Broadcast a Message</b>\n\nSend:\n<code>/send &lt;your message&gt;</code>\n\n` +
+    `<b>📢 Broadcast a Message</b>\n\nCommand:\n<code>/send &lt;message&gt;</code>\n\n` +
     `<b>Example:</b> <code>/send Chemistry Ch5 notes are live!</code>`
   );
 });
@@ -376,7 +357,7 @@ bot.command("gen_key", async (ctx) => {
       `🔑 Key Code    :  <code>${keyCode}</code>\n` +
       `⏱ Valid For    :  <b>${minutes} minute(s)</b>\n` +
       `📅 Expires At  :  <b>${fmtDate(expiryTime)}</b>\n\n` +
-      `<i>Share this key with the student to activate their account.</i>`
+      `<i>Student ko ye key dedo account activate karne ke liye.</i>`
     );
   } catch (err) {
     await ctx.reply(`❌ Key generation failed: ${err.message}`);
@@ -401,7 +382,7 @@ bot.command("update", async (ctx) => {
   const link    = raw.slice(pipeIdx + 1).trim();
 
   if (!subject || !link) {
-    return ctx.reply("⚠️ Both Subject and Link are required.");
+    return ctx.reply("⚠️ Subject aur Link dono required hain.");
   }
 
   try {
@@ -472,7 +453,7 @@ bot.command("ban", async (ctx) => {
 
     await ctx.replyWithHTML(
       `<b>🚫 User Banned & Removed</b>\n\n` +
-      `Username <code>${username}</code> deleted.\n` +
+      `Username <code>${username}</code> delete ho gaya.\n` +
       `<i>${moment().format("DD MMM YYYY, hh:mm A")}</i>`
     );
   } catch (err) {
@@ -499,7 +480,7 @@ bot.command("send", async (ctx) => {
 
     await ctx.replyWithHTML(
       `<b>📢 Broadcast Logged</b>\n\n` +
-      `👥 Audience  :  <b>${count ?? 0} registered user(s)</b>\n` +
+      `👥 Audience  :  <b>${count ?? 0} user(s)</b>\n` +
       `📅 Time      :  <b>${moment().format("DD MMM YYYY, hh:mm A")}</b>\n\n` +
       `<b>Message:</b>\n<blockquote>${message}</blockquote>`
     );
@@ -532,7 +513,72 @@ app.get("/api/all-notes", async (req, res) => {
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
-//  SECTION 24 — REST API: POST /api/login
+//  SECTION 24 — REST API: POST /api/register
+//  Expects body: { user, pass }
+//  Direct registration — bina key ke account banata hai
+// ─────────────────────────────────────────────────────────────────────────────
+
+app.post("/api/register", async (req, res) => {
+  try {
+    const { user, pass } = req.body;
+
+    // ── Validate input ──────────────────────────────────────────────────────
+    if (!user || String(user).trim() === "") {
+      return res.status(400).json({ success: false, message: "Username is required." });
+    }
+    if (!pass || String(pass).trim() === "") {
+      return res.status(400).json({ success: false, message: "Password is required." });
+    }
+    if (String(pass).trim().length < 4) {
+      return res.status(400).json({ success: false, message: "Password must be at least 4 characters." });
+    }
+
+    const cleanUser = String(user).trim().toLowerCase();
+    const cleanPass = String(pass).trim();
+
+    // ── Check if username already exists ───────────────────────────────────
+    const { data: existing, error: checkErr } = await supabase
+      .from("users")
+      .select("username")
+      .eq("username", cleanUser)
+      .maybeSingle();
+
+    if (checkErr) {
+      console.error("[POST /api/register] Check error:", checkErr.message);
+      return res.status(500).json({ success: false, message: "Server error during user check." });
+    }
+
+    if (existing) {
+      return res.status(409).json({
+        success: false,
+        message: "Username already taken. Please choose another.",
+      });
+    }
+
+    // ── Insert new user ────────────────────────────────────────────────────
+    const { error: insertErr } = await supabase
+      .from("users")
+      .insert({ username: cleanUser, password: cleanPass });
+
+    if (insertErr) {
+      console.error("[POST /api/register] Insert error:", insertErr.message);
+      return res.status(500).json({ success: false, message: "Registration failed. Please try again." });
+    }
+
+    return res.status(200).json({
+      success:  true,
+      message:  "Account created successfully!",
+      username: cleanUser,
+    });
+
+  } catch (err) {
+    console.error("[POST /api/register] Exception:", err.message);
+    return res.status(500).json({ success: false, message: "Internal server error." });
+  }
+});
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  SECTION 25 — REST API: POST /api/login
 //  Expects body: { user, pass }
 // ─────────────────────────────────────────────────────────────────────────────
 
@@ -550,7 +596,7 @@ app.post("/api/login", async (req, res) => {
     const { data, error } = await supabase
       .from("users")
       .select("username, password")
-      .eq("username", String(user).trim())
+      .eq("username", String(user).trim().toLowerCase())
       .eq("password", String(pass).trim())
       .single();
 
@@ -570,17 +616,9 @@ app.post("/api/login", async (req, res) => {
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
-//  SECTION 25 — REST API: POST /api/verify-key
-//  The full registration hub — 7 guarded steps, each in its own try-catch.
+//  SECTION 26 — REST API: POST /api/verify-key
 //  Expects body: { key_code, user }
-//
-//  Step A — Validate input fields
-//  Step B — Fetch key record from access_keys
-//  Step C — Check if key is already used
-//  Step D — Check expiry via moment ISO comparison
-//  Step E — Check if username already exists (maybeSingle — no crash on miss)
-//  Step F — Insert new user if they don't exist yet
-//  Step G — Mark key as used and log used_by + used_at
+//  7-step registration hub for access key activation
 // ─────────────────────────────────────────────────────────────────────────────
 
 app.post("/api/verify-key", async (req, res) => {
@@ -615,7 +653,7 @@ app.post("/api/verify-key", async (req, res) => {
     }
     keyRecord = data;
   } catch (err) {
-    console.error("[POST /api/verify-key] Step B exception:", err.message);
+    console.error("[POST /api/verify-key] Step B:", err.message);
     return res.status(500).json({ success: false, message: "Server error while looking up key." });
   }
 
@@ -638,7 +676,7 @@ app.post("/api/verify-key", async (req, res) => {
     });
   }
 
-  // ── Step E: Does the username already exist? (uses maybeSingle) ───────────
+  // ── Step E: Username already exists? (maybeSingle — no crash on miss) ─────
   let existingUser = null;
   try {
     const { data, error } = await supabase
@@ -648,16 +686,16 @@ app.post("/api/verify-key", async (req, res) => {
       .maybeSingle();
 
     if (error) {
-      console.error("[POST /api/verify-key] Step E exception:", error.message);
+      console.error("[POST /api/verify-key] Step E:", error.message);
       return res.status(500).json({ success: false, message: "Server error during user check." });
     }
     existingUser = data;
   } catch (err) {
-    console.error("[POST /api/verify-key] Step E unhandled:", err.message);
+    console.error("[POST /api/verify-key] Step E exception:", err.message);
     return res.status(500).json({ success: false, message: "Server error during user lookup." });
   }
 
-  // ── Step F: Insert new user (only if they don't already exist) ────────────
+  // ── Step F: Insert new user ───────────────────────────────────────────────
   if (!existingUser) {
     try {
       const { error: insertError } = await supabase
@@ -665,7 +703,7 @@ app.post("/api/verify-key", async (req, res) => {
         .insert({ username: cleanUser, password: cleanKey });
 
       if (insertError) {
-        console.error("[POST /api/verify-key] Step F insert error:", insertError.message);
+        console.error("[POST /api/verify-key] Step F:", insertError.message);
         return res.status(500).json({
           success: false,
           message: "Failed to create user account. Please try again.",
@@ -677,7 +715,7 @@ app.post("/api/verify-key", async (req, res) => {
     }
   }
 
-  // ── Step G: Mark key as used and log metadata ─────────────────────────────
+  // ── Step G: Mark key as used ──────────────────────────────────────────────
   try {
     const { error: updateError } = await supabase
       .from("access_keys")
@@ -689,10 +727,10 @@ app.post("/api/verify-key", async (req, res) => {
       .eq("key_code", cleanKey);
 
     if (updateError) {
-      console.error("[POST /api/verify-key] Step G update error:", updateError.message);
+      console.error("[POST /api/verify-key] Step G:", updateError.message);
       return res.status(500).json({
         success: false,
-        message: "Account created but failed to mark key as used. Contact admin.",
+        message: "Account created but key mark failed. Contact admin.",
       });
     }
   } catch (err) {
@@ -704,15 +742,14 @@ app.post("/api/verify-key", async (req, res) => {
   return res.status(200).json({
     success:  true,
     message:  existingUser
-      ? "Key accepted. You are already registered — logging you in."
+      ? "Key accepted. Already registered — logging you in."
       : "Key verified. Account created. Welcome to Sentinel iNotes!",
     username: cleanUser,
   });
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
-//  SECTION 26 — STATIC HTML PAGE ROUTES
-//  Named routes so direct URL access works (e.g., render.com/dashboard).
+//  SECTION 27 — STATIC HTML PAGE ROUTES
 // ─────────────────────────────────────────────────────────────────────────────
 
 app.get("/", (req, res) => {
@@ -723,12 +760,16 @@ app.get("/login", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "login.html"));
 });
 
+app.get("/register", (req, res) => {
+  res.sendFile(path.join(__dirname, "public", "register.html"));
+});
+
 app.get("/dashboard", (req, res) => {
   res.sendFile(path.join(__dirname, "public", "dashboard.html"));
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
-//  SECTION 27 — 404 FALLBACK
+//  SECTION 28 — 404 FALLBACK
 // ─────────────────────────────────────────────────────────────────────────────
 
 app.use((req, res) => {
@@ -739,8 +780,7 @@ app.use((req, res) => {
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
-//  SECTION 28 — GLOBAL ERROR HANDLER
-//  Must have 4 parameters — Express identifies it as an error handler by that.
+//  SECTION 29 — GLOBAL ERROR HANDLER (4 params required by Express)
 // ─────────────────────────────────────────────────────────────────────────────
 
 // eslint-disable-next-line no-unused-vars
@@ -750,21 +790,19 @@ app.use((err, req, res, next) => {
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
-//  SECTION 29 — SERVER BOOT
-//  ONE app.listen call — bound to 0.0.0.0 as required by Render.
+//  SECTION 30 — SERVER BOOT (ONE app.listen — 0.0.0.0 required by Render)
 // ─────────────────────────────────────────────────────────────────────────────
 
 const server = app.listen(PORT, "0.0.0.0", () => {
   console.log("╔════════════════════════════════════════════════════════╗");
   console.log("║   🛡  SENTINEL iNOTES — SERVER ONLINE                  ║");
-  console.log(`║   🌐  Bound to 0.0.0.0:${PORT}                           ║`);
-  console.log("║   📦  VIP-ANAND-7525  |  Render Production Build       ║");
+  console.log(`║   🌐  Bound to 0.0.0.0:${PORT}                          ║`);
+  console.log("║   📦  VIP-ANAND-7525  |  Final Production Build        ║");
   console.log("╚════════════════════════════════════════════════════════╝");
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
-//  SECTION 30 — TELEGRAM BOT LAUNCH
-//  Long-polling mode — works perfectly on Render Web Services.
+//  SECTION 31 — TELEGRAM BOT LAUNCH
 // ─────────────────────────────────────────────────────────────────────────────
 
 bot
@@ -778,20 +816,16 @@ bot
   });
 
 // ─────────────────────────────────────────────────────────────────────────────
-//  SECTION 31 — GRACEFUL SHUTDOWN
-//  Closes the HTTP server cleanly before Node exits.
-//  Render sends SIGTERM when it shuts down or restarts your service.
+//  SECTION 32 — GRACEFUL SHUTDOWN
 // ─────────────────────────────────────────────────────────────────────────────
 
 function gracefulShutdown(signal) {
-  console.log(`\n⚠️  ${signal} received — shutting down gracefully…`);
+  console.log(`\n⚠️  ${signal} received — shutting down…`);
   bot.stop(signal);
   server.close(() => {
-    console.log("✅  HTTP server closed. Goodbye.\n");
+    console.log("✅  Server closed. Goodbye.\n");
     process.exit(0);
   });
-
-  // Force exit if server hasn't closed within 8 seconds
   setTimeout(() => {
     console.error("❌  Forced shutdown after timeout.");
     process.exit(1);
@@ -801,16 +835,9 @@ function gracefulShutdown(signal) {
 process.once("SIGINT",  () => gracefulShutdown("SIGINT"));
 process.once("SIGTERM", () => gracefulShutdown("SIGTERM"));
 
-// Handle uncaught exceptions — log them but don't crash silently
-process.on("uncaughtException", (err) => {
-  console.error("[uncaughtException]", err.message, err.stack);
-});
-
-process.on("unhandledRejection", (reason) => {
-  console.error("[unhandledRejection]", reason);
-});
+process.on("uncaughtException",  (err)    => console.error("[uncaughtException]",  err.message));
+process.on("unhandledRejection", (reason) => console.error("[unhandledRejection]", reason));
 
 // ─────────────────────────────────────────────────────────────────────────────
-//  END OF FILE — server.js  |  VIP-ANAND-7525 | Sentinel iNotes
-//  Render-Optimized Build — PORT via env · 0.0.0.0 bind · graceful shutdown
+//  END OF FILE — server.js | VIP-ANAND-7525 | Sentinel iNotes Final Build
 // ─────────────────────────────────────────────────────────────────────────────
