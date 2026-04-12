@@ -33,9 +33,10 @@ app.get("/", (req, res) => {
 
 // 5. Server Listen
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => {
-    console.log(`Server running on port ${PORT}`);
+app.listen(PORT, '0.0.0.0', () => {
+    console.log(`Server is running on port ${PORT}`);
 });
+
 
 /** Guard: only ADMIN_ID may use admin commands */
 const isAdmin = (ctx) => Number(ctx.from?.id) === ADMIN_ID; // Added Number() here to ensure strict type match
