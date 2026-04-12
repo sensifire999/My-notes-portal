@@ -10,38 +10,32 @@ const { Telegraf, Markup } = require("telegraf");
 const { createClient } = require("@supabase/supabase-js");
 const moment = require("moment");
 
-// 1. Initialize Express
-const app = express();
-app.use(express.json());
-app.use(express.static(path.join(__dirname, "public")));
-
-// 2. Config
+// 1. Config & Keys
 const SUPABASE_URL  = process.env.SUPABASE_URL || "https://jecckogefamxionqdbby.supabase.co";
 const SUPABASE_KEY  = process.env.SUPABASE_KEY || "sb_publishable_qTXtquSTGI6VqJbuscf1lw_BA1AhG-_";
 const BOT_TOKEN     = process.env.BOT_TOKEN     || "8618816305:AAEcABZIZJtkIB5gRUq43bNtXYh82U0yZZc";
 const ADMIN_ID      = 8084057668;
 
-// 3. Create Client (Sirf EK baar likhna hai)
+// 2. Initialize Clients (Sirf EK baar)
+const app = express();
 const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+const bot = new Telegraf(BOT_TOKEN);
+
+// 3. Middlewares
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(express.static(path.join(__dirname, "public")));
+
+// ── Helpers & Routes Yahan Se Likho ─────────────────────────
+
+// ... baki routes aur logic ...
 
 // 4. Server Listen
 const PORT = process.env.PORT || 3000;
 app.listen(PORT, () => {
     console.log(`Server running on port ${PORT}`);
 });
-
-
-
-// ── Clients ─────────────────────────────────────────────────
-const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
-const bot      = new Telegraf(BOT_TOKEN);
-const app      = express();
-
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, "public")));
-
-// ── Helpers ─────────────────────────────────────────────────
+ ─────────────────────────────────────────────────
 
 /** Guard: only ADMIN_ID may use admin commands */
 const isAdmin = (ctx) => Number(ctx.from?.id) === ADMIN_ID; // Added Number() here to ensure strict type match
