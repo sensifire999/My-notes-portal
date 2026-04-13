@@ -22,258 +22,470 @@
     body {
       background: var(--bg);
       font-family: 'Figtree', sans-serif;
-      color: #fff; overflow-x: hidden; min-height: 100vh;
+      color: #fff;
+      overflow-x: hidden;
+      min-height: 100vh;
     }
 
     /* ── background ── */
-    .bg-root { position:fixed;inset:0;z-index:0;pointer-events:none;
-      background:radial-gradient(ellipse 80% 60% at 10% 5%,rgba(12,40,120,.70) 0%,transparent 55%),
-                 radial-gradient(ellipse 60% 50% at 92% 90%,rgba(0,60,140,.50) 0%,transparent 55%),
-                 linear-gradient(180deg,#010810 0%,#010408 100%); }
-    .orb { position:fixed;border-radius:50%;pointer-events:none;z-index:0; }
-    .o1 { width:650px;height:650px;background:radial-gradient(circle,rgba(20,60,200,.28) 0%,transparent 65%);filter:blur(110px);top:-180px;left:-160px;animation:d1 22s ease-in-out infinite alternate; }
-    .o2 { width:450px;height:450px;background:radial-gradient(circle,rgba(0,100,200,.22) 0%,transparent 65%);filter:blur(90px);bottom:-120px;right:-120px;animation:d2 16s ease-in-out infinite alternate; }
-    @keyframes d1{to{transform:translate(28px,-36px) scale(1.07)}}
-    @keyframes d2{to{transform:translate(-20px,28px) scale(1.04)}}
-    .noise { position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.02;
-      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
-      background-size:180px; }
+    .bg-root {
+      position: fixed; inset: 0; z-index: 0; pointer-events: none;
+      background:
+        radial-gradient(ellipse 80% 60% at 10% 5%,  rgba(12,40,120,.70) 0%, transparent 55%),
+        radial-gradient(ellipse 60% 50% at 92% 90%, rgba(0,60,140,.50)  0%, transparent 55%),
+        linear-gradient(180deg, #010810 0%, #010408 100%);
+    }
+    .orb { position: fixed; border-radius: 50%; pointer-events: none; z-index: 0; }
+    .o1 {
+      width: 650px; height: 650px;
+      background: radial-gradient(circle, rgba(20,60,200,.28) 0%, transparent 65%);
+      filter: blur(110px); top: -180px; left: -160px;
+      animation: d1 22s ease-in-out infinite alternate;
+    }
+    .o2 {
+      width: 450px; height: 450px;
+      background: radial-gradient(circle, rgba(0,100,200,.22) 0%, transparent 65%);
+      filter: blur(90px); bottom: -120px; right: -120px;
+      animation: d2 16s ease-in-out infinite alternate;
+    }
+    @keyframes d1 { to { transform: translate(28px,-36px) scale(1.07); } }
+    @keyframes d2 { to { transform: translate(-20px,28px) scale(1.04); } }
 
-    /* ── KEY OVERLAY ── */
+    .noise {
+      position: fixed; inset: 0; z-index: 1; pointer-events: none; opacity: .02;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
+      background-size: 180px;
+    }
+
+    /* ════════════════════════════════════════
+       KEY OVERLAY
+    ════════════════════════════════════════ */
     #keyOverlay {
       position: fixed; inset: 0; z-index: 5000;
       background: rgba(1,5,14,.97);
       backdrop-filter: blur(20px);
       display: flex; align-items: center; justify-content: center; padding: 20px;
     }
+
     .key-card {
-      width:100%; max-width:440px;
-      background:rgba(255,255,255,.045);
-      border:1px solid rgba(255,255,255,.10);
-      border-radius:32px;
-      backdrop-filter:blur(40px) saturate(180%);
-      box-shadow:inset 0 1px 0 rgba(255,255,255,.09),0 40px 90px rgba(0,0,0,.6);
-      overflow:hidden;
-      animation:rise .6s cubic-bezier(.16,1,.3,1) both;
+      position: relative;
+      width: 100%; max-width: 440px;
+      background: rgba(255,255,255,.045);
+      border: 1px solid rgba(255,255,255,.10);
+      border-radius: 32px;
+      backdrop-filter: blur(40px) saturate(180%);
+      -webkit-backdrop-filter: blur(40px) saturate(180%);
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,.09),
+        0 8px 32px rgba(0,0,0,.55),
+        0 40px 90px rgba(0,0,0,.40);
+      overflow: hidden;
+      animation: rise .6s cubic-bezier(.16,1,.3,1) both;
     }
-    .key-card::before { content:'';position:absolute;top:0;left:10%;right:10%;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.14),transparent); }
-    @keyframes rise{from{opacity:0;transform:translateY(24px) scale(.96)}to{opacity:1;transform:translateY(0) scale(1)}}
+    .key-card::before {
+      content: ''; position: absolute; top: 0; left: 10%; right: 10%; height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,.14), transparent);
+    }
+    @keyframes rise {
+      from { opacity: 0; transform: translateY(24px) scale(.96); }
+      to   { opacity: 1; transform: translateY(0)    scale(1);   }
+    }
 
     .key-head {
-      background:rgba(20,20,24,.90);
-      border-bottom:1px solid rgba(255,255,255,.07);
-      padding:22px 28px;
-      display:flex;align-items:center;gap:12px;
+      background: rgba(20,20,24,.90);
+      border-bottom: 1px solid rgba(255,255,255,.07);
+      padding: 22px 28px;
+      display: flex; align-items: center; gap: 12px;
     }
-    .key-logo { width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#007aff,#0040c8);display:flex;align-items:center;justify-content:center;font-size:17px;box-shadow:0 0 14px rgba(0,122,255,.40); }
+    .key-logo {
+      width: 36px; height: 36px; border-radius: 10px;
+      background: linear-gradient(135deg,#007aff,#0040c8);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 17px;
+      box-shadow: 0 0 14px rgba(0,122,255,.40);
+      flex-shrink: 0;
+    }
+    .key-head-text {}
+    .key-head-name { font-size: 15px; font-weight: 700; }
+    .key-head-sub  { font-size: 10px; letter-spacing: .08em; text-transform: uppercase; color: var(--t35); margin-top: 1px; }
 
-    .key-body { padding:36px 32px 32px; }
-    .key-title { font-family:'DM Serif Display',serif;font-size:30px;letter-spacing:-.02em;margin-bottom:6px; }
-    .key-sub { font-size:11px;font-weight:700;letter-spacing:.10em;text-transform:uppercase;color:var(--t35);margin-bottom:8px; }
-    .key-dm-link { display:inline-block;font-size:12px;font-weight:700;color:var(--blue);margin-bottom:28px;text-decoration:none; }
-    .key-dm-link:hover { text-decoration:underline; }
+    .key-body { padding: 36px 32px 32px; }
+
+    .key-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: 30px; letter-spacing: -.02em; margin-bottom: 5px;
+    }
+    .key-sub {
+      font-size: 11px; font-weight: 700; letter-spacing: .10em; text-transform: uppercase;
+      color: var(--t35); margin-bottom: 6px;
+    }
+    .key-dm-link {
+      display: inline-block; font-size: 12px; font-weight: 700;
+      color: var(--blue); margin-bottom: 28px; text-decoration: none;
+    }
+    .key-dm-link:hover { text-decoration: underline; }
 
     .key-input {
-      width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.10);
-      border-radius:13px;padding:14px 16px;text-align:center;
-      font-family:'Figtree',sans-serif;font-size:18px;font-weight:800;
-      color:var(--blue);letter-spacing:.25em;text-transform:uppercase;outline:none;
-      transition:border-color .2s,box-shadow .2s;margin-bottom:20px;
+      width: 100%;
+      background: rgba(255,255,255,.06);
+      border: 1px solid rgba(255,255,255,.10);
+      border-radius: 13px; padding: 14px 16px;
+      text-align: center;
+      font-family: 'Figtree', sans-serif;
+      font-size: 18px; font-weight: 800;
+      color: var(--blue); letter-spacing: .25em; text-transform: uppercase;
+      outline: none;
+      transition: border-color .2s, box-shadow .2s;
+      margin-bottom: 20px;
     }
-    .key-input::placeholder{color:rgba(0,122,255,.35);letter-spacing:.15em;}
-    .key-input:focus{border-color:rgba(0,122,255,.55);box-shadow:0 0 0 3px rgba(0,122,255,.12);}
+    .key-input::placeholder { color: rgba(0,122,255,.35); letter-spacing: .15em; }
+    .key-input:focus {
+      border-color: rgba(0,122,255,.55);
+      box-shadow: 0 0 0 3px rgba(0,122,255,.12);
+    }
 
     .key-btn {
-      width:100%;background:linear-gradient(135deg,#007aff,#0050cc);
-      border:none;border-radius:14px;padding:15px;
-      font-family:'Figtree',sans-serif;font-size:15px;font-weight:800;color:#fff;
-      cursor:pointer;box-shadow:0 4px 24px rgba(0,122,255,.35);
-      transition:transform .15s,box-shadow .15s;position:relative;overflow:hidden;
+      width: 100%;
+      background: linear-gradient(135deg, #007aff, #0050cc);
+      border: none; border-radius: 14px; padding: 15px;
+      font-family: 'Figtree', sans-serif;
+      font-size: 15px; font-weight: 800; color: #fff;
+      cursor: pointer; position: relative; overflow: hidden;
+      box-shadow: 0 4px 24px rgba(0,122,255,.35), inset 0 1px 0 rgba(255,255,255,.22);
+      transition: transform .15s, box-shadow .15s, opacity .2s;
     }
-    .key-btn:hover{transform:translateY(-1px);box-shadow:0 8px 32px rgba(0,122,255,.45);}
-    .key-btn:active{transform:translateY(0);}
-    .key-err { margin-top:12px;padding:10px 14px;border-radius:11px;font-size:13px;font-weight:600;
-      background:rgba(255,59,48,.10);border:1px solid rgba(255,59,48,.28);color:#ff6b6b;display:none; }
-    .key-err.show { display:block; }
+    .key-btn:hover:not(:disabled) { transform: translateY(-1px); box-shadow: 0 8px 32px rgba(0,122,255,.45); }
+    .key-btn:active:not(:disabled){ transform: translateY(0); }
+    .key-btn:disabled { opacity: .5; cursor: not-allowed; }
+    .key-btn .btn-shine {
+      position: absolute; top: 0; left: -90%; width: 55%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,.18), transparent);
+      transform: skewX(-20deg); transition: left .5s;
+    }
+    .key-btn:hover .btn-shine { left: 145%; }
 
-    /* ── NAVBAR ── */
+    .key-err {
+      margin-top: 12px; padding: 11px 14px; border-radius: 12px;
+      font-size: 13px; font-weight: 600; display: none;
+      background: rgba(255,59,48,.10); border: 1px solid rgba(255,59,48,.28);
+      color: #ff6b6b;
+    }
+    .key-err.show { display: block; }
+
+    /* ════════════════════════════════════════
+       NAVBAR
+    ════════════════════════════════════════ */
     nav {
-      position:sticky;top:0;z-index:200;height:62px;
-      background:rgba(1,5,14,.80);backdrop-filter:blur(28px) saturate(180%);
-      border-bottom:1px solid var(--border);
-      display:flex;align-items:center;justify-content:space-between;
-      padding:0 32px;box-shadow:0 4px 30px rgba(0,0,0,.35);
+      position: sticky; top: 0; z-index: 200; height: 62px;
+      background: rgba(1,5,14,.80);
+      backdrop-filter: blur(28px) saturate(180%);
+      -webkit-backdrop-filter: blur(28px) saturate(180%);
+      border-bottom: 1px solid var(--border);
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 0 32px;
+      box-shadow: 0 4px 30px rgba(0,0,0,.35);
     }
-    .nav-brand { display:flex;align-items:center;gap:11px; }
-    .nav-icon { width:36px;height:36px;border-radius:10px;background:linear-gradient(135deg,#007aff,#0040c8);display:flex;align-items:center;justify-content:center;font-size:17px;box-shadow:0 0 14px rgba(0,122,255,.35); }
-    .nav-title { font-family:'DM Serif Display',serif;font-size:20px;letter-spacing:-.01em; }
-    .nav-right { display:flex;align-items:center;gap:12px; }
-    .nav-user {
-      display:flex;align-items:center;gap:8px;
-      background:var(--glass);border:1px solid var(--border);
-      border-radius:100px;padding:5px 14px 5px 7px;
+    .nav-brand { display: flex; align-items: center; gap: 11px; }
+    .nav-icon  {
+      width: 36px; height: 36px; border-radius: 10px;
+      background: linear-gradient(135deg,#007aff,#0040c8);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 17px; box-shadow: 0 0 14px rgba(0,122,255,.35);
     }
-    .nav-avatar { width:26px;height:26px;border-radius:50%;background:linear-gradient(135deg,#007aff,#7b2ff7);display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:900;text-transform:uppercase; }
-    .nav-name { font-size:13px;font-weight:700; }
+    .nav-title { font-family: 'DM Serif Display', serif; font-size: 20px; letter-spacing: -.01em; }
+    .nav-right { display: flex; align-items: center; gap: 12px; }
+    .nav-user  {
+      display: flex; align-items: center; gap: 8px;
+      background: var(--glass); border: 1px solid var(--border);
+      border-radius: 100px; padding: 5px 14px 5px 7px;
+    }
+    .nav-avatar {
+      width: 26px; height: 26px; border-radius: 50%;
+      background: linear-gradient(135deg, #007aff, #7b2ff7);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 900; text-transform: uppercase; flex-shrink: 0;
+    }
+    .nav-name  { font-size: 13px; font-weight: 700; }
+
     .btn-term {
-      display:flex;align-items:center;gap:6px;
-      background:rgba(255,59,48,.09);border:1px solid rgba(255,59,48,.24);
-      border-radius:11px;padding:8px 14px;font-family:'Figtree',sans-serif;
-      font-size:13px;font-weight:700;color:#ff6b6b;cursor:pointer;
-      transition:background .2s,transform .15s;
+      display: flex; align-items: center; gap: 6px;
+      background: rgba(255,59,48,.09); border: 1px solid rgba(255,59,48,.24);
+      border-radius: 11px; padding: 8px 14px;
+      font-family: 'Figtree', sans-serif; font-size: 13px; font-weight: 700;
+      color: #ff6b6b; cursor: pointer;
+      transition: background .2s, transform .15s;
     }
-    .btn-term:hover{background:rgba(255,59,48,.16);transform:translateY(-1px);}
+    .btn-term:hover { background: rgba(255,59,48,.16); transform: translateY(-1px); }
 
-    /* ── MAIN ── */
-    main { position:relative;z-index:10;padding:40px 32px 80px;max-width:1300px;margin:0 auto; }
+    /* ════════════════════════════════════════
+       MAIN
+    ════════════════════════════════════════ */
+    main {
+      position: relative; z-index: 10;
+      padding: 40px 32px 80px;
+      max-width: 1300px; margin: 0 auto;
+    }
 
-    .page-hero { margin-bottom:32px;animation:fadeUp .5s cubic-bezier(.16,1,.3,1) both; }
+    .page-hero { margin-bottom: 32px; animation: fadeUp .5s cubic-bezier(.16,1,.3,1) both; }
+
     .hero-badge {
-      display:inline-flex;align-items:center;gap:7px;
-      background:rgba(0,122,255,.10);border:1px solid rgba(0,122,255,.22);
-      border-radius:100px;padding:4px 12px 4px 8px;
-      font-size:10.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;
-      color:var(--blue);margin-bottom:12px;
+      display: inline-flex; align-items: center; gap: 7px;
+      background: rgba(0,122,255,.10); border: 1px solid rgba(0,122,255,.22);
+      border-radius: 100px; padding: 4px 12px 4px 8px;
+      font-size: 10.5px; font-weight: 700; letter-spacing: .09em; text-transform: uppercase;
+      color: var(--blue); margin-bottom: 12px;
     }
-    .live-dot { width:6px;height:6px;background:var(--blue);border-radius:50%;box-shadow:0 0 6px var(--blue);animation:blink 2.2s infinite; }
-    @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
-    .hero-title { font-family:'DM Serif Display',serif;font-size:clamp(28px,4vw,44px);letter-spacing:-.03em;line-height:1.05;margin-bottom:8px; }
-    .hero-title em { font-style:italic;color:var(--blue); }
-    .hero-sub { font-size:14px;color:var(--t60);max-width:480px;line-height:1.6; }
+    .live-dot {
+      width: 6px; height: 6px; background: var(--blue); border-radius: 50%;
+      box-shadow: 0 0 6px var(--blue); animation: blink 2.2s infinite;
+    }
+    @keyframes blink { 0%,100%{ opacity:1; } 50%{ opacity:.3; } }
+
+    .hero-title {
+      font-family: 'DM Serif Display', serif;
+      font-size: clamp(28px, 4vw, 44px);
+      letter-spacing: -.03em; line-height: 1.05; margin-bottom: 8px;
+    }
+    .hero-title em { font-style: italic; color: var(--blue); }
+    .hero-sub { font-size: 14px; color: var(--t60); max-width: 480px; line-height: 1.6; }
 
     /* stats */
-    .stats { display:flex;gap:14px;flex-wrap:wrap;margin-bottom:30px;animation:fadeUp .55s cubic-bezier(.16,1,.3,1) .07s both; }
-    .stat { flex:1;min-width:110px;background:var(--glass);border:1px solid var(--border);border-radius:16px;padding:16px 18px;backdrop-filter:blur(18px);position:relative;overflow:hidden; }
-    .stat::before{content:'';position:absolute;top:0;left:8%;right:8%;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.10),transparent);}
-    .stat-n{font-family:'DM Serif Display',serif;font-size:28px;letter-spacing:-.03em;line-height:1;}
-    .stat-l{font-size:10.5px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--t35);margin-top:3px;}
+    .stats {
+      display: flex; gap: 14px; flex-wrap: wrap;
+      margin-bottom: 30px;
+      animation: fadeUp .55s cubic-bezier(.16,1,.3,1) .07s both;
+    }
+    .stat {
+      flex: 1; min-width: 110px;
+      background: var(--glass); border: 1px solid var(--border);
+      border-radius: 16px; padding: 16px 18px;
+      backdrop-filter: blur(18px); position: relative; overflow: hidden;
+    }
+    .stat::before {
+      content: ''; position: absolute; top: 0; left: 8%; right: 8%; height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,.10), transparent);
+    }
+    .stat-n {
+      font-family: 'DM Serif Display', serif;
+      font-size: 28px; letter-spacing: -.03em; line-height: 1;
+      transition: color .4s;
+    }
+    .stat-l {
+      font-size: 10.5px; font-weight: 600; letter-spacing: .07em; text-transform: uppercase;
+      color: var(--t35); margin-top: 3px;
+    }
 
     /* search */
-    .search-wrap { position:relative;max-width:380px;margin-bottom:28px;animation:fadeUp .55s cubic-bezier(.16,1,.3,1) .11s both; }
-    .search-ico { position:absolute;left:14px;top:50%;transform:translateY(-50%);color:var(--t35);display:flex; }
-    .search-input {
-      width:100%;padding:12px 16px 12px 42px;
-      background:rgba(255,255,255,.055);border:1px solid var(--border);
-      border-radius:13px;font-family:'Figtree',sans-serif;font-size:14px;font-weight:500;
-      color:#fff;outline:none;transition:border-color .2s,background .2s,box-shadow .2s;
+    .search-wrap {
+      position: relative; max-width: 380px; margin-bottom: 28px;
+      animation: fadeUp .55s cubic-bezier(.16,1,.3,1) .11s both;
     }
-    .search-input::placeholder{color:rgba(255,255,255,.22);}
-    .search-input:focus{border-color:rgba(0,122,255,.48);background:rgba(0,122,255,.05);box-shadow:0 0 0 3px rgba(0,122,255,.10);}
+    .search-ico {
+      position: absolute; left: 14px; top: 50%; transform: translateY(-50%);
+      color: var(--t35); display: flex; pointer-events: none;
+    }
+    .search-input {
+      width: 100%; padding: 12px 16px 12px 42px;
+      background: rgba(255,255,255,.055); border: 1px solid var(--border);
+      border-radius: 13px; font-family: 'Figtree', sans-serif;
+      font-size: 14px; font-weight: 500; color: #fff; outline: none;
+      transition: border-color .2s, background .2s, box-shadow .2s;
+    }
+    .search-input::placeholder { color: rgba(255,255,255,.22); }
+    .search-input:focus {
+      border-color: rgba(0,122,255,.48);
+      background: rgba(0,122,255,.05);
+      box-shadow: 0 0 0 3px rgba(0,122,255,.10);
+    }
 
     /* grid */
     .notes-grid {
-      display:grid;
-      grid-template-columns:repeat(auto-fill,minmax(285px,1fr));
-      gap:18px;
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(285px, 1fr));
+      gap: 18px;
     }
 
-    /* card */
+    /* note card */
     .note-card {
-      background:var(--glass);border:1px solid var(--border);
-      border-radius:22px;
-      backdrop-filter:blur(26px) saturate(180%);
-      -webkit-backdrop-filter:blur(26px) saturate(180%);
-      box-shadow:inset 0 1px 0 rgba(255,255,255,.07),0 4px 20px rgba(0,0,0,.36);
-      padding:24px;display:flex;flex-direction:column;gap:14px;
-      position:relative;overflow:hidden;
-      animation:cardIn .5s cubic-bezier(.16,1,.3,1) both;
-      transition:transform .22s cubic-bezier(.16,1,.3,1),box-shadow .22s,border-color .22s,background .22s;
+      background: var(--glass); border: 1px solid var(--border);
+      border-radius: 22px;
+      backdrop-filter: blur(26px) saturate(180%);
+      -webkit-backdrop-filter: blur(26px) saturate(180%);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.07), 0 4px 20px rgba(0,0,0,.36);
+      padding: 24px; display: flex; flex-direction: column; gap: 14px;
+      position: relative; overflow: hidden;
+      animation: cardIn .5s cubic-bezier(.16,1,.3,1) both;
+      transition: transform .22s cubic-bezier(.16,1,.3,1), box-shadow .22s, border-color .22s, background .22s;
     }
-    .note-card::before { content:'';position:absolute;top:0;left:10%;right:10%;height:1px;background:linear-gradient(90deg,transparent,rgba(255,255,255,.14),transparent); }
-    .note-card:hover { transform:translateY(-4px);background:rgba(255,255,255,.072);border-color:rgba(0,122,255,.22);box-shadow:inset 0 1px 0 rgba(255,255,255,.10),0 12px 40px rgba(0,0,0,.48),0 0 0 1px rgba(0,122,255,.12); }
-    @keyframes cardIn{from{opacity:0;transform:translateY(20px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
+    .note-card::before {
+      content: ''; position: absolute; top: 0; left: 10%; right: 10%; height: 1px;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,.14), transparent);
+    }
+    .note-card:hover {
+      transform: translateY(-4px);
+      background: rgba(255,255,255,.072);
+      border-color: rgba(0,122,255,.22);
+      box-shadow: inset 0 1px 0 rgba(255,255,255,.10), 0 12px 40px rgba(0,0,0,.48), 0 0 0 1px rgba(0,122,255,.12);
+    }
+    @keyframes cardIn {
+      from { opacity: 0; transform: translateY(20px) scale(.97); }
+      to   { opacity: 1; transform: translateY(0)    scale(1);   }
+    }
 
-    .card-expiry { font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--t35);text-align:center;padding-bottom:12px;border-bottom:1px solid rgba(255,255,255,.06); }
-    .card-expiry.warn { color:#ff9500; }
-    .card-expiry.expired { color:#ff3b30; }
+    .card-icon-row { display: flex; align-items: center; gap: 12px; }
+    .card-icon {
+      width: 46px; height: 46px; border-radius: 13px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 21px; flex-shrink: 0;
+    }
+    .ci-0 { background: rgba(0,122,255,.13); }  .ci-1 { background: rgba(48,209,88,.12); }
+    .ci-2 { background: rgba(255,149,0,.12); }  .ci-3 { background: rgba(191,90,242,.12); }
+    .ci-4 { background: rgba(255,59,48,.11); }  .ci-5 { background: rgba(255,214,10,.11); }
 
-    .card-icon-row { display:flex;align-items:center;gap:12px; }
-    .card-icon { width:46px;height:46px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:21px;flex-shrink:0; }
-    .ci-0{background:rgba(0,122,255,.13);}  .ci-1{background:rgba(48,209,88,.12);}
-    .ci-2{background:rgba(255,149,0,.12);}  .ci-3{background:rgba(191,90,242,.12);}
-    .ci-4{background:rgba(255,59,48,.11);}  .ci-5{background:rgba(255,214,10,.11);}
-
-    .card-subject { font-family:'DM Serif Display',serif;font-size:17px;letter-spacing:-.015em;line-height:1.25;flex:1; }
-
-    .card-date { font-size:11px;font-weight:500;color:var(--t35); }
+    .card-subject {
+      font-family: 'DM Serif Display', serif;
+      font-size: 17px; letter-spacing: -.015em; line-height: 1.25; flex: 1;
+    }
+    .card-date { font-size: 11px; font-weight: 500; color: var(--t35); }
 
     .btn-view {
-      display:inline-flex;align-items:center;gap:7px;align-self:flex-start;
-      position:relative;overflow:hidden;
-      background:linear-gradient(135deg,rgba(0,122,255,.14),rgba(0,80,200,.10));
-      border:1px solid rgba(0,122,255,.26);border-radius:11px;padding:9px 17px;
-      font-family:'Figtree',sans-serif;font-size:13px;font-weight:800;color:var(--blue);
-      text-decoration:none;cursor:pointer;
-      transition:background .2s,transform .15s,box-shadow .15s;
+      display: inline-flex; align-items: center; gap: 7px; align-self: flex-start;
+      position: relative; overflow: hidden;
+      background: linear-gradient(135deg, rgba(0,122,255,.14), rgba(0,80,200,.10));
+      border: 1px solid rgba(0,122,255,.26); border-radius: 11px; padding: 9px 17px;
+      font-family: 'Figtree', sans-serif; font-size: 13px; font-weight: 800;
+      color: var(--blue); text-decoration: none; cursor: pointer;
+      transition: background .2s, transform .15s, box-shadow .15s;
     }
-    .btn-view .vs{position:absolute;top:0;left:-90%;width:60%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.14),transparent);transform:skewX(-20deg);transition:left .5s;}
-    .btn-view:hover .vs{left:150%;}
-    .btn-view:hover{background:linear-gradient(135deg,rgba(0,122,255,.24),rgba(0,80,200,.18));transform:translateX(2px);box-shadow:0 0 18px rgba(0,122,255,.20);}
+    .btn-view .vs {
+      position: absolute; top: 0; left: -90%; width: 60%; height: 100%;
+      background: linear-gradient(90deg, transparent, rgba(255,255,255,.14), transparent);
+      transform: skewX(-20deg); transition: left .5s;
+    }
+    .btn-view:hover .vs { left: 150%; }
+    .btn-view:hover {
+      background: linear-gradient(135deg, rgba(0,122,255,.24), rgba(0,80,200,.18));
+      transform: translateX(2px); box-shadow: 0 0 18px rgba(0,122,255,.20);
+    }
 
     /* skeleton */
-    .skel-card{background:var(--glass);border:1px solid var(--border);border-radius:22px;padding:24px;animation:sk 1.8s ease-in-out infinite;}
-    .skel{background:rgba(255,255,255,.07);border-radius:8px;margin-bottom:10px;}
-    .skel-ic{width:46px;height:46px;border-radius:13px;background:rgba(255,255,255,.07);margin-bottom:14px;}
-    .skel-t{height:17px;width:70%;}
-    .skel-s{height:12px;width:44%;}
-    .skel-b{height:36px;width:90px;border-radius:11px;background:rgba(255,255,255,.07);margin-top:12px;}
-    @keyframes sk{0%,100%{opacity:.45}50%{opacity:.80}}
+    .skel-card {
+      background: var(--glass); border: 1px solid var(--border);
+      border-radius: 22px; padding: 24px;
+      animation: sk 1.8s ease-in-out infinite;
+    }
+    .skel      { background: rgba(255,255,255,.07); border-radius: 8px; margin-bottom: 10px; }
+    .skel-ic   { width: 46px; height: 46px; border-radius: 13px; background: rgba(255,255,255,.07); margin-bottom: 14px; }
+    .skel-t    { height: 17px; width: 70%; }
+    .skel-s    { height: 12px; width: 44%; }
+    .skel-b    { height: 36px; width: 90px; border-radius: 11px; background: rgba(255,255,255,.07); margin-top: 12px; }
+    @keyframes sk { 0%,100%{ opacity:.45; } 50%{ opacity:.80; } }
 
     /* empty */
-    .empty{grid-column:1/-1;text-align:center;padding:80px 20px;color:var(--t35);}
-    .empty-ico{font-size:52px;margin-bottom:16px;}
-    .empty-t{font-size:20px;font-weight:800;letter-spacing:-.02em;color:rgba(255,255,255,.55);margin-bottom:6px;}
+    .empty { grid-column: 1/-1; text-align: center; padding: 80px 20px; color: var(--t35); }
+    .empty-ico { font-size: 52px; margin-bottom: 16px; }
+    .empty-t   { font-size: 20px; font-weight: 800; letter-spacing: -.02em; color: rgba(255,255,255,.55); margin-bottom: 6px; }
 
     /* pdf modal */
-    #pdfModal{display:none;position:fixed;inset:0;z-index:6000;flex-direction:column;background:rgba(1,5,14,.98);backdrop-filter:blur(20px);}
-    #pdfModal.open{display:flex;}
-    .modal-bar{padding:16px 24px;display:flex;align-items:center;justify-content:space-between;background:rgba(20,20,24,.95);border-bottom:1px solid var(--border);}
-    .modal-title{font-size:12px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--blue);}
-    .modal-close{background:#fff;color:#000;border:none;border-radius:11px;padding:8px 18px;font-family:'Figtree',sans-serif;font-size:12px;font-weight:800;cursor:pointer;transition:background .2s;}
-    .modal-close:hover{background:#e8e8e8;}
-    #pdfFrame{flex:1;border:none;background:#000;}
+    #pdfModal {
+      display: none; position: fixed; inset: 0; z-index: 6000;
+      flex-direction: column; background: rgba(1,5,14,.98);
+      backdrop-filter: blur(20px);
+    }
+    #pdfModal.open { display: flex; }
+    .modal-bar {
+      padding: 16px 24px; display: flex; align-items: center; justify-content: space-between;
+      background: rgba(20,20,24,.95); border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .modal-title { font-size: 12px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--blue); }
+    .modal-close {
+      background: #fff; color: #000; border: none; border-radius: 11px;
+      padding: 8px 18px; font-family: 'Figtree', sans-serif;
+      font-size: 12px; font-weight: 800; cursor: pointer; transition: background .2s;
+    }
+    .modal-close:hover { background: #e8e8e8; }
+    #pdfFrame { flex: 1; border: none; background: #000; width: 100%; }
 
-    @keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
-    ::-webkit-scrollbar{width:5px;} ::-webkit-scrollbar-track{background:transparent;} ::-webkit-scrollbar-thumb{background:rgba(255,255,255,.10);border-radius:3px;}
-    @media(max-width:640px){nav{padding:0 16px;}main{padding:28px 16px 60px;}.stats{gap:10px;}.notes-grid{grid-template-columns:1fr;}.nav-name{display:none;}}
+    /* expiry toast */
+    .expiry-toast {
+      position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%);
+      z-index: 4000; padding: 12px 22px; border-radius: 14px;
+      font-size: 13px; font-weight: 700;
+      background: rgba(255,59,48,.15); border: 1px solid rgba(255,59,48,.35);
+      color: #ff6b6b; backdrop-filter: blur(16px);
+      display: none; white-space: nowrap;
+      animation: toastIn .4s cubic-bezier(.16,1,.3,1);
+    }
+    .expiry-toast.show { display: block; }
+    @keyframes toastIn { from { opacity: 0; transform: translateX(-50%) translateY(12px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: rgba(255,255,255,.10); border-radius: 3px; }
+
+    @media (max-width: 640px) {
+      nav { padding: 0 16px; }
+      main { padding: 28px 16px 60px; }
+      .stats { gap: 10px; }
+      .notes-grid { grid-template-columns: 1fr; }
+      .nav-name { display: none; }
+    }
   </style>
 </head>
 <body>
+
   <div class="bg-root"></div>
   <div class="orb o1"></div>
   <div class="orb o2"></div>
   <div class="noise"></div>
 
-  <!-- ── KEY OVERLAY ── -->
+  <!-- ══════════════════════════════════════
+       KEY OVERLAY
+  ══════════════════════════════════════ -->
   <div id="keyOverlay">
-    <div class="key-card" style="position:relative;">
+    <div class="key-card">
       <div class="key-head">
         <div class="key-logo">🛡</div>
-        <div>
-          <div style="font-size:15px;font-weight:700;">iNotes Sentinel</div>
-          <div style="font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:rgba(255,255,255,.35);">VIP-ANAND-7525</div>
+        <div class="key-head-text">
+          <div class="key-head-name">iNotes Sentinel</div>
+          <div class="key-head-sub">VIP-ANAND-7525</div>
         </div>
       </div>
+
       <div class="key-body">
         <h2 class="key-title">Vault Locked</h2>
         <p class="key-sub">Key Required to Proceed</p>
-        <a href="https://www.instagram.com/desi_anand_yt?igsh=ZjcwbHlzcTNibXJo" target="_blank" class="key-dm-link">
-          📩 DM @desi_anand_yt for your access key →
-        </a>
+        <a
+          href="https://www.instagram.com/desi_anand_yt?igsh=ZjcwbHlzcTNibXJo"
+          target="_blank"
+          class="key-dm-link"
+        >📩 DM @desi_anand_yt for your access key →</a>
 
-        <input type="text" id="accessKey" class="key-input" placeholder="VIP-XXXX-ANAND"
-               oninput="this.value=this.value.toUpperCase()" autocomplete="off" />
+        <input
+          type="text"
+          id="accessKey"
+          class="key-input"
+          placeholder="VIP-XXXX-ANAND"
+          autocomplete="off"
+          spellcheck="false"
+          oninput="this.value = this.value.toUpperCase()"
+        />
 
         <button class="key-btn" id="unlockBtn" onclick="unlockVault()">
-          <span style="position:absolute;top:0;left:-90%;width:55%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.18),transparent);transform:skewX(-20deg);transition:left .5s;" id="btnShine"></span>
-          AUTHORIZE SESSION
+          <span class="btn-shine"></span>
+          <span id="unlockLabel">AUTHORIZE SESSION</span>
         </button>
+
         <div class="key-err" id="keyErr"></div>
       </div>
     </div>
   </div>
 
-  <!-- ── NAVBAR ── -->
+  <!-- ══════════════════════════════════════
+       NAVBAR
+  ══════════════════════════════════════ -->
   <nav id="mainNav" style="display:none;">
     <div class="nav-brand">
       <div class="nav-icon">🛡</div>
@@ -282,202 +494,421 @@
     <div class="nav-right">
       <div class="nav-user">
         <div class="nav-avatar" id="navAvatar">?</div>
-        <span class="nav-name" id="navName">Loading…</span>
+        <span class="nav-name"  id="navName">…</span>
       </div>
       <button class="btn-term" onclick="logout()">
-        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+          <polyline points="16 17 21 12 16 7"/>
+          <line x1="21" y1="12" x2="9" y2="12"/>
+        </svg>
         Terminate
       </button>
     </div>
   </nav>
 
-  <!-- ── MAIN ── -->
+  <!-- ══════════════════════════════════════
+       MAIN CONTENT
+  ══════════════════════════════════════ -->
   <main id="mainContent" style="display:none;">
+
     <header class="page-hero">
       <div class="hero-badge"><span class="live-dot"></span>Live Vault</div>
       <h1 class="hero-title">Your study<br/><em>materials.</em></h1>
       <p class="hero-sub">All premium notes, updated in real-time. Tap VIEW to open any PDF instantly.</p>
     </header>
 
+    <!-- Stats strip -->
     <div class="stats">
-      <div class="stat"><div class="stat-n" id="stTotal">–</div><div class="stat-l">Total PDFs</div></div>
-      <div class="stat"><div class="stat-n" id="stExp">–</div><div class="stat-l">Key Expires</div></div>
-      <div class="stat"><div class="stat-n" id="stUser">–</div><div class="stat-l">Logged In As</div></div>
+      <div class="stat">
+        <div class="stat-n" id="stTotal">–</div>
+        <div class="stat-l">Total PDFs</div>
+      </div>
+      <div class="stat">
+        <div class="stat-n" id="stExp" title="Key expiry time">–</div>
+        <div class="stat-l">Key Expires</div>
+      </div>
+      <div class="stat">
+        <div class="stat-n" id="stUser">–</div>
+        <div class="stat-l">Logged In As</div>
+      </div>
     </div>
 
+    <!-- Search -->
     <div class="search-wrap">
       <span class="search-ico">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"/>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"/>
+        </svg>
       </span>
-      <input class="search-input" id="searchInput" type="search" placeholder="Search subjects…" oninput="filterNotes()" />
+      <input
+        class="search-input"
+        id="searchInput"
+        type="search"
+        placeholder="Search subjects…"
+        oninput="filterNotes()"
+      />
     </div>
 
+    <!-- Notes grid -->
     <div class="notes-grid" id="notesGrid">
       <div class="skel-card"><div class="skel-ic"></div><div class="skel skel-t"></div><div class="skel skel-s"></div><div class="skel-b"></div></div>
       <div class="skel-card"><div class="skel-ic"></div><div class="skel skel-t"></div><div class="skel skel-s"></div><div class="skel-b"></div></div>
       <div class="skel-card"><div class="skel-ic"></div><div class="skel skel-t"></div><div class="skel skel-s"></div><div class="skel-b"></div></div>
     </div>
+
   </main>
 
-  <!-- ── PDF MODAL ── -->
+  <!-- ══════════════════════════════════════
+       PDF MODAL
+  ══════════════════════════════════════ -->
   <div id="pdfModal">
     <div class="modal-bar">
       <span class="modal-title" id="pdfTitle">Secure View</span>
-      <button class="modal-close" onclick="closePDF()">✕ Close</button>
+      <button class="modal-close" onclick="closePDF()">✕  Close</button>
     </div>
-    <iframe id="pdfFrame" class="flex-1"></iframe>
+    <iframe id="pdfFrame"></iframe>
   </div>
 
-  <script>
-    const ICONS = ['📘','📗','📕','📙','📔','📓','🔬','🧮','⚗️','🌐','💡','📐','📊','🗂','📑','🔭'];
-    const user      = localStorage.getItem('sentinel_user');
-    const activeKey = localStorage.getItem('sentinel_key');
-    let   allNotes  = [];
+  <!-- Expiry toast -->
+  <div class="expiry-toast" id="expiryToast"></div>
 
-    // ── Auth guard ────────────────────────────────────────────────────────────
+  <!-- ══════════════════════════════════════
+       JAVASCRIPT
+  ══════════════════════════════════════ -->
+  <script>
+    // ── Constants ──────────────────────────────────────────────────────────────
+    const ICONS = [
+      '📘','📗','📕','📙','📔','📓',
+      '🔬','🧮','⚗️','🌐','💡','📐',
+      '📊','🗂','📑','🔭','🧬','📡',
+    ];
+
+    // ── State ──────────────────────────────────────────────────────────────────
+    const user      = localStorage.getItem('sentinel_user');
+    let   activeKey = localStorage.getItem('sentinel_key');
+    let   allNotes  = [];
+    let   expiryCheckInterval = null;
+
+    // ── Auth guard — no user at all → go to login ─────────────────────────────
     if (!user) window.location.replace('/');
 
-    // ── Boot: check if key already unlocked ───────────────────────────────────
-    window.addEventListener('DOMContentLoaded', () => {
-      if (activeKey) {
+    // ══════════════════════════════════════════════════════════════════════════
+    //  BOOT — on page load, check if stored key is still valid
+    // ══════════════════════════════════════════════════════════════════════════
+    window.addEventListener('DOMContentLoaded', async () => {
+      if (!activeKey) {
+        // No key stored — show overlay as-is
+        return;
+      }
+
+      // Verify stored key against server BEFORE showing dashboard
+      try {
+        const res = await fetch('/api/key-info?key=' + encodeURIComponent(activeKey));
+        const ct  = res.headers.get('content-type') || '';
+
+        if (!ct.includes('application/json')) {
+          // Server not responding properly — allow through optimistically
+          showDashboard();
+          loadDashboard();
+          return;
+        }
+
+        const data = await res.json();
+
+        const isExpired = !data.success
+          || data.expired
+          || new Date(data.expiry) <= new Date();
+
+        if (isExpired) {
+          // ── KEY EXPIRED — clear and force re-entry ─────────────────────────
+          localStorage.removeItem('sentinel_key');
+          activeKey = null;
+          showKeyOverlay('⏰ Your previous key expired. Please enter a new one.');
+        } else {
+          // ── KEY VALID — show dashboard ─────────────────────────────────────
+          showDashboard();
+          loadDashboard();
+        }
+      } catch {
+        // Network error on boot — allow through, periodic check will handle it
         showDashboard();
         loadDashboard();
       }
     });
 
+    // ══════════════════════════════════════════════════════════════════════════
+    //  SHOW / HIDE DASHBOARD vs OVERLAY
+    // ══════════════════════════════════════════════════════════════════════════
     function showDashboard() {
-      document.getElementById('keyOverlay').style.display = 'none';
-      document.getElementById('mainNav').style.display    = '';
-      document.getElementById('mainContent').style.display = '';
-      // Populate nav
+      document.getElementById('keyOverlay').style.display   = 'none';
+      document.getElementById('mainNav').style.display      = '';
+      document.getElementById('mainContent').style.display  = '';
+
       document.getElementById('navAvatar').textContent = user.charAt(0).toUpperCase();
       document.getElementById('navName').textContent   = user;
-      document.getElementById('stUser').textContent    = user.length > 8 ? user.slice(0,7)+'…' : user;
+      document.getElementById('stUser').textContent    = user.length > 9
+        ? user.slice(0, 8) + '…'
+        : user;
     }
 
-    // ── Unlock vault ──────────────────────────────────────────────────────────
+    function showKeyOverlay(msg) {
+      document.getElementById('keyOverlay').style.display   = 'flex';
+      document.getElementById('mainNav').style.display      = 'none';
+      document.getElementById('mainContent').style.display  = 'none';
+
+      // Clear the input and reset button
+      document.getElementById('accessKey').value = '';
+      const btn = document.getElementById('unlockBtn');
+      const lbl = document.getElementById('unlockLabel');
+      btn.disabled      = false;
+      lbl.textContent   = 'AUTHORIZE SESSION';
+
+      // Show error message if provided
+      if (msg) {
+        const err = document.getElementById('keyErr');
+        err.textContent = msg;
+        err.classList.add('show');
+      }
+
+      // Stop the expiry checker
+      if (expiryCheckInterval) {
+        clearInterval(expiryCheckInterval);
+        expiryCheckInterval = null;
+      }
+    }
+
+    // ══════════════════════════════════════════════════════════════════════════
+    //  UNLOCK VAULT
+    //  Sends: { username, key_code }  — matches server.js /api/verify-key
+    // ══════════════════════════════════════════════════════════════════════════
     async function unlockVault() {
       const key = document.getElementById('accessKey').value.trim().toUpperCase();
       const btn = document.getElementById('unlockBtn');
+      const lbl = document.getElementById('unlockLabel');
       const err = document.getElementById('keyErr');
-      if (!key) { showKeyErr('Please enter your access key.'); return; }
 
-      btn.textContent = 'VERIFYING…';
-      btn.style.opacity = '.65';
+      // Clear previous error
       err.classList.remove('show');
+
+      if (!key) {
+        err.textContent = '⚠ Please enter your access key.';
+        err.classList.add('show');
+        return;
+      }
+
+      btn.disabled    = true;
+      lbl.innerHTML   = '<span style="display:inline-block;width:15px;height:15px;border:2px solid rgba(255,255,255,.3);border-top-color:#fff;border-radius:50%;animation:sp .55s linear infinite;vertical-align:middle;margin-right:8px;"></span>VERIFYING…';
 
       try {
         const res = await fetch('/api/verify-key', {
-          method: 'POST',
+          method:  'POST',
           headers: { 'Content-Type': 'application/json' },
-          // ✅ Exact field names: { username, key_code } — matches server.js §25
-          body: JSON.stringify({ username: user, key_code: key }),
+          // ✅ Exact fields: { username, key_code } — matches server.js §25
+          body:    JSON.stringify({ username: user, key_code: key }),
         });
+
         const ct = res.headers.get('content-type') || '';
-        if (!ct.includes('application/json')) throw new Error(`Server error ${res.status}`);
+        if (!ct.includes('application/json'))
+          throw new Error(`Server error ${res.status}. Is the server running?`);
+
         const data = await res.json();
 
         if (data.success) {
           localStorage.setItem('sentinel_key', key);
+          activeKey = key;
           showDashboard();
           loadDashboard();
         } else {
-          showKeyErr(data.message || 'Invalid or expired key.');
-          btn.textContent = 'AUTHORIZE SESSION';
-          btn.style.opacity = '1';
+          err.textContent = '❌ ' + (data.message || 'Invalid or expired key.');
+          err.classList.add('show');
+          btn.disabled  = false;
+          lbl.textContent = 'AUTHORIZE SESSION';
         }
       } catch (e) {
-        showKeyErr('⚠ ' + e.message);
-        btn.textContent = 'AUTHORIZE SESSION';
-        btn.style.opacity = '1';
+        err.textContent = '⚠ ' + e.message;
+        err.classList.add('show');
+        btn.disabled  = false;
+        lbl.textContent = 'AUTHORIZE SESSION';
       }
     }
 
-    function showKeyErr(msg) {
-      const el = document.getElementById('keyErr');
-      el.textContent = msg;
-      el.classList.add('show');
-    }
-
-    // ── Load dashboard data ────────────────────────────────────────────────────
+    // ══════════════════════════════════════════════════════════════════════════
+    //  LOAD DASHBOARD DATA
+    // ══════════════════════════════════════════════════════════════════════════
     async function loadDashboard() {
+      // Run both in parallel
       await Promise.all([loadNotes(), loadKeyInfo()]);
+
+      // Start periodic expiry check every 60 seconds
+      if (expiryCheckInterval) clearInterval(expiryCheckInterval);
+      expiryCheckInterval = setInterval(loadKeyInfo, 60000);
     }
 
+    // ══════════════════════════════════════════════════════════════════════════
+    //  LOAD KEY INFO — show expiry, handle expiry gracefully
+    // ══════════════════════════════════════════════════════════════════════════
     async function loadKeyInfo() {
+      const el = document.getElementById('stExp');
+
       try {
-        const res  = await fetch('/api/key-info?key=' + encodeURIComponent(activeKey));
+        const res = await fetch('/api/key-info?key=' + encodeURIComponent(activeKey));
+        const ct  = res.headers.get('content-type') || '';
+
+        if (!ct.includes('application/json')) throw new Error('bad_response');
+
         const data = await res.json();
-        const el   = document.getElementById('stExp');
+
         if (data.success) {
-          const expiry = new Date(data.expiry);
-          const diff   = Math.max(0, Math.round((expiry - Date.now()) / 60000));
-          el.textContent = diff > 60
-            ? Math.round(diff / 60) + 'h'
-            : diff + 'm';
-          el.title = data.expiry_fmt;
-          if (diff < 30) el.style.color = '#ff9500';
-          if (diff === 0) el.style.color = '#ff3b30';
+          const expiry   = new Date(data.expiry);
+          const diffMs   = expiry - Date.now();
+          const diffMins = Math.floor(diffMs / 60000);
+
+          // ── KEY EXPIRED ─────────────────────────────────────────────────────
+          if (diffMins <= 0 || data.expired) {
+            el.textContent = 'EXPIRED';
+            el.style.color = '#ff3b30';
+
+            // Show toast notification
+            showToast('⏰ Your access key has expired.');
+
+            // Clear stored key
+            localStorage.removeItem('sentinel_key');
+            activeKey = null;
+
+            // Give user 2 seconds to see the message, then show overlay
+            setTimeout(() => {
+              showKeyOverlay('⏰ Your key expired. Please enter a new key to continue.');
+            }, 2000);
+
+            return;
+          }
+
+          // ── SHOW REMAINING TIME ──────────────────────────────────────────────
+          if (diffMins >= 60) {
+            const hrs  = Math.floor(diffMins / 60);
+            const mins = diffMins % 60;
+            el.textContent = mins > 0 ? `${hrs}h ${mins}m` : `${hrs}h`;
+          } else {
+            el.textContent = `${diffMins}m`;
+          }
+
+          // Tooltip with exact datetime
+          el.title = `Expires: ${data.expiry_fmt}`;
+
+          // Color coding based on time left
+          if (diffMins <= 10) {
+            el.style.color = '#ff3b30';                     // red  — < 10 min
+            showToast(`⚠ Only ${diffMins} minute(s) left on your key!`);
+          } else if (diffMins <= 30) {
+            el.style.color = '#ff9500';                     // orange — < 30 min
+          } else {
+            el.style.color = '#30d158';                     // green — safe
+          }
+
         } else {
-          el.textContent = 'OK';
+          // Key not found in DB at all
+          el.textContent = 'INVALID';
+          el.style.color = '#ff3b30';
+          localStorage.removeItem('sentinel_key');
+          activeKey = null;
+          setTimeout(() => {
+            showKeyOverlay('❌ Key not found. Please enter a valid key.');
+          }, 1500);
         }
-      } catch { document.getElementById('stExp').textContent = 'OK'; }
+
+      } catch {
+        // Network or parse error — don't kick user out, just show dashes
+        el.textContent = '—';
+        el.style.color = 'rgba(255,255,255,.35)';
+      }
     }
 
+    // ══════════════════════════════════════════════════════════════════════════
+    //  LOAD NOTES — GET /api/all-notes
+    // ══════════════════════════════════════════════════════════════════════════
     async function loadNotes() {
       try {
         const res  = await fetch('/api/all-notes');
         const data = await res.json();
-        if (!data.success) throw new Error(data.error);
+        if (!data.success) throw new Error(data.error || 'API error');
         allNotes = data.notes || [];
         renderNotes(allNotes);
         document.getElementById('stTotal').textContent = allNotes.length;
       } catch (e) {
         document.getElementById('notesGrid').innerHTML =
-          `<div class="empty"><div class="empty-ico">⚠️</div><div class="empty-t">Failed to load</div><p>${escH(e.message)}</p></div>`;
+          `<div class="empty">
+            <div class="empty-ico">⚠️</div>
+            <div class="empty-t">Failed to load notes</div>
+            <p>${escH(e.message)}</p>
+          </div>`;
       }
     }
 
-    // ── Render cards ──────────────────────────────────────────────────────────
+    // ══════════════════════════════════════════════════════════════════════════
+    //  RENDER NOTES
+    // ══════════════════════════════════════════════════════════════════════════
     function renderNotes(notes) {
       const grid = document.getElementById('notesGrid');
+
       if (!notes.length) {
-        grid.innerHTML = `<div class="empty"><div class="empty-ico">📂</div><div class="empty-t">Vault is Empty</div><p>No PDFs uploaded yet.</p></div>`;
+        grid.innerHTML =
+          `<div class="empty">
+            <div class="empty-ico">📂</div>
+            <div class="empty-t">Vault is Empty</div>
+            <p>No PDFs uploaded yet.</p>
+          </div>`;
         return;
       }
+
       grid.innerHTML = notes.map((n, i) => {
         const delay   = Math.min(i * 0.055, 0.55).toFixed(3);
         const icon    = ICONS[i % ICONS.length];
         const ci      = i % 6;
         const title   = escH(n.subject || 'Untitled');
-        const link    = escA(n.link || '#');
-        const date    = fmt(n.created_at);
+        const link    = escA(n.link    || '#');
+        const date    = fmtDate(n.created_at);
+
         return `
           <div class="note-card" style="animation-delay:${delay}s">
             <div class="card-icon-row">
               <div class="card-icon ci-${ci}">${icon}</div>
-              <div style="flex:1;min-width:0">
+              <div style="flex:1; min-width:0;">
                 <div class="card-subject">${title}</div>
                 <div class="card-date">Added ${date}</div>
               </div>
             </div>
-            <button class="btn-view" onclick="openPDF('${link}','${title}')">
+            <button class="btn-view" onclick="openPDF('${link}', '${title}')">
               <span class="vs"></span>
-              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>
+                <polyline points="15 3 21 3 21 9"/>
+                <line x1="10" y1="14" x2="21" y2="3"/>
+              </svg>
               VIEW
             </button>
           </div>`;
       }).join('');
     }
 
+    // ══════════════════════════════════════════════════════════════════════════
+    //  SEARCH FILTER
+    // ══════════════════════════════════════════════════════════════════════════
     function filterNotes() {
       const q = document.getElementById('searchInput').value.trim().toLowerCase();
-      renderNotes(q ? allNotes.filter(n => n.subject.toLowerCase().includes(q)) : allNotes);
+      renderNotes(q
+        ? allNotes.filter(n => (n.subject || '').toLowerCase().includes(q))
+        : allNotes
+      );
     }
 
-    // ── PDF Modal ─────────────────────────────────────────────────────────────
+    // ══════════════════════════════════════════════════════════════════════════
+    //  PDF MODAL
+    // ══════════════════════════════════════════════════════════════════════════
     function openPDF(url, title) {
       document.getElementById('pdfTitle').textContent = title;
+
       let finalUrl = url;
       if (url.includes('drive.google.com')) {
         let id = '';
@@ -485,6 +916,7 @@
         if (url.includes('id='))  id = url.split('id=')[1]?.split('&')[0];
         if (id) finalUrl = `https://drive.google.com/uc?export=view&id=${id}`;
       }
+
       document.getElementById('pdfFrame').src =
         `https://docs.google.com/viewer?url=${encodeURIComponent(finalUrl)}&embedded=true`;
       document.getElementById('pdfModal').classList.add('open');
@@ -497,24 +929,60 @@
       document.body.style.overflow = '';
     }
 
-    function logout() { localStorage.clear(); window.location.replace('/'); }
+    // ══════════════════════════════════════════════════════════════════════════
+    //  TOAST NOTIFICATION
+    // ══════════════════════════════════════════════════════════════════════════
+    let toastTimeout = null;
+    function showToast(msg) {
+      const el = document.getElementById('expiryToast');
+      el.textContent = msg;
+      el.classList.add('show');
+      if (toastTimeout) clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(() => el.classList.remove('show'), 5000);
+    }
 
-    // ── Helpers ───────────────────────────────────────────────────────────────
-    function fmt(iso) {
+    // ══════════════════════════════════════════════════════════════════════════
+    //  LOGOUT
+    // ══════════════════════════════════════════════════════════════════════════
+    function logout() {
+      if (expiryCheckInterval) clearInterval(expiryCheckInterval);
+      localStorage.clear();
+      window.location.replace('/');
+    }
+
+    // ══════════════════════════════════════════════════════════════════════════
+    //  HELPERS
+    // ══════════════════════════════════════════════════════════════════════════
+    function fmtDate(iso) {
       if (!iso) return '–';
-      return new Date(iso).toLocaleDateString('en-IN', { day:'2-digit', month:'short', year:'numeric' });
-    }
-    function escH(s) {
-      return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
-    }
-    function escA(s) {
-      return /^https?:\/\//i.test(s) ? s.replace(/"/g,'&quot;') : '#';
+      try {
+        return new Date(iso).toLocaleDateString('en-IN', {
+          day: '2-digit', month: 'short', year: 'numeric',
+        });
+      } catch { return iso; }
     }
 
-    // Enter key on key overlay
+    function escH(s) {
+      return String(s)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    function escA(s) {
+      return /^https?:\/\//i.test(s) ? String(s).replace(/"/g, '&quot;') : '#';
+    }
+
+    // ── Enter key on key overlay ───────────────────────────────────────────────
     document.getElementById('accessKey').addEventListener('keydown', (e) => {
       if (e.key === 'Enter') unlockVault();
     });
   </script>
+
+  <style>
+    @keyframes sp { to { transform: rotate(360deg); } }
+  </style>
+
 </body>
 </html>
