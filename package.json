@@ -1,7 +1,7 @@
 {
   "name": "sentinel-inotes",
-  "version": "3.0.0",
-  "description": "Sentinel iNotes — Render Production Build",
+  "version": "4.0.0",
+  "description": "VIP-ANAND-7525 | Sentinel iNotes — Final Production Build",
   "main": "server.js",
   "scripts": {
     "start": "node server.js",
