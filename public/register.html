@@ -1,80 +1,229 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>iNotes | Register</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;900&display=swap');
-        body { background: #000; font-family: 'Inter', sans-serif; color: white; min-h-screen; display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative; padding: 20px; }
-        
-        .glow-blob { position: absolute; width: 450px; height: 450px; border-radius: 50%; filter: blur(100px); opacity: 0.15; z-index: 0; animation: rotate_glow 20s linear infinite; }
-        .blob-purple { background: #9b51e0; top: 10%; left: 10%; }
-        .blob-blue { background: #007aff; bottom: 10%; right: 10%; animation-delay: -10s; }
-        @keyframes rotate_glow { 0% { transform: translate(0,0); } 50% { transform: translate(40px, 30px); } 100% { transform: translate(0,0); } }
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>iNotes | Register</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Figtree:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-        .hyper-glass { background: rgba(255, 255, 255, 0.02); backdrop-filter: blur(45px) saturate(180%); border: 1px solid rgba(255, 255, 255, 0.06); border-radius: 40px; box-shadow: 0 40px 90px rgba(0, 0, 0, 0.7); position: relative; z-index: 10; overflow: hidden; width: 100%; max-width: 450px; }
-        .sentinel-header { background: rgba(30, 30, 32, 0.95); border-bottom: 1px solid rgba(255, 255, 255, 0.08); padding: 25px; }
+    body {
+      background: #01050e;
+      font-family: 'Figtree', sans-serif;
+      color: #fff;
+      min-height: 100vh;
+      display: flex; align-items: center; justify-content: center;
+      overflow: hidden; padding: 20px;
+    }
 
-        .btn-click-effect {
-            background: linear-gradient(135deg, #007aff 0%, #0056b3 100%);
-            color: #fff;
-            transition: transform 0.1s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.2s;
-        }
-        .btn-click-effect:active {
-            transform: scale(0.94);
-        }
+    .orb { position:fixed;border-radius:50%;pointer-events:none;z-index:0; }
+    .o1 { width:600px;height:600px;background:radial-gradient(circle,rgba(60,0,200,0.30) 0%,transparent 65%);filter:blur(100px);top:-180px;right:-160px;animation:d1 22s ease-in-out infinite alternate; }
+    .o2 { width:450px;height:450px;background:radial-gradient(circle,rgba(0,80,200,0.28) 0%,transparent 65%);filter:blur(90px);bottom:-120px;left:-120px;animation:d2 17s ease-in-out infinite alternate; }
+    @keyframes d1{to{transform:translate(-25px,35px) scale(1.05)}}
+    @keyframes d2{to{transform:translate(22px,-28px) scale(1.04)}}
 
-        .input-hyper { background: transparent; border: none; border-bottom: 2px solid rgba(255, 255, 255, 0.08); transition: 0.4s; color: white; width: 100%; padding: 15px 0; outline: none; font-size: 1.1rem; }
-        .input-hyper:focus { border-bottom-color: #007aff; }
-    </style>
+    .noise { position:fixed;inset:0;z-index:1;pointer-events:none;opacity:.022;
+      background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='g'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.75' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23g)'/%3E%3C/svg%3E");
+      background-size:180px;
+    }
+
+    .card {
+      position: relative; z-index: 10;
+      width: 100%; max-width: 440px;
+      background: rgba(255,255,255,0.045);
+      border: 1px solid rgba(255,255,255,0.10);
+      border-radius: 32px;
+      backdrop-filter: blur(40px) saturate(180%);
+      -webkit-backdrop-filter: blur(40px) saturate(180%);
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.09),
+        0 8px 32px rgba(0,0,0,0.55),
+        0 40px 90px rgba(0,0,0,0.40);
+      overflow: hidden;
+      animation: rise .65s cubic-bezier(.16,1,.3,1) both;
+    }
+    .card::before {
+      content:''; position:absolute; top:0; left:10%; right:10%; height:1px;
+      background:linear-gradient(90deg,transparent,rgba(255,255,255,.14),transparent);
+    }
+    @keyframes rise { from{opacity:0;transform:translateY(28px) scale(.96)} to{opacity:1;transform:translateY(0) scale(1)} }
+
+    .card-head {
+      background: rgba(20,20,24,0.90);
+      border-bottom: 1px solid rgba(255,255,255,0.07);
+      padding: 22px 28px;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .head-brand { display:flex;align-items:center;gap:11px; }
+    .head-icon {
+      width:36px;height:36px;border-radius:10px;
+      background:linear-gradient(135deg,#007aff,#0040c8);
+      display:flex;align-items:center;justify-content:center;font-size:17px;
+      box-shadow:0 0 14px rgba(0,122,255,.40);
+    }
+    .head-name { font-size:15px;font-weight:700; }
+    .head-dot { width:8px;height:8px;background:#30d158;border-radius:50%;box-shadow:0 0 6px #30d158;animation:blink 2.2s infinite; }
+    @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+
+    .card-body { padding: 36px 32px 32px; }
+
+    .title { font-family:'DM Serif Display',serif; font-size:34px; letter-spacing:-.02em; margin-bottom:4px; }
+    .subtitle { font-size:11px; font-weight:700; letter-spacing:.10em; text-transform:uppercase; color:rgba(255,255,255,.35); margin-bottom:32px; }
+
+    .field { margin-bottom: 18px; }
+    .field-label { display:block; font-size:10.5px; font-weight:700; letter-spacing:.09em; text-transform:uppercase; color:rgba(255,255,255,.35); margin-bottom:7px; }
+    .field-input {
+      width:100%; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.10);
+      border-radius:13px; padding:13px 15px; font-family:'Figtree',sans-serif;
+      font-size:15px; font-weight:500; color:#fff; outline:none;
+      transition:border-color .2s, background .2s, box-shadow .2s;
+    }
+    .field-input::placeholder { color:rgba(255,255,255,.22); }
+    .field-input:focus { border-color:rgba(0,122,255,.55); background:rgba(0,122,255,.06); box-shadow:0 0 0 3px rgba(0,122,255,.12); }
+
+    /* password strength */
+    .strength-wrap { height:3px; background:rgba(255,255,255,.06); border-radius:2px; margin-top:7px; overflow:hidden; }
+    .strength-bar  { height:100%; border-radius:2px; width:0; transition:width .3s,background .3s; }
+
+    .btn-submit {
+      width:100%; margin-top:10px;
+      background:linear-gradient(135deg,#007aff 0%,#0050cc 100%);
+      border:none; border-radius:14px; padding:15px;
+      font-family:'Figtree',sans-serif; font-size:15px; font-weight:800; color:#fff;
+      cursor:pointer; position:relative; overflow:hidden;
+      box-shadow:0 4px 24px rgba(0,122,255,.35),inset 0 1px 0 rgba(255,255,255,.22);
+      transition:transform .15s,box-shadow .15s,opacity .15s;
+    }
+    .btn-submit:hover:not(:disabled) { transform:translateY(-1px); box-shadow:0 8px 32px rgba(0,122,255,.45); }
+    .btn-submit:active:not(:disabled) { transform:translateY(0); opacity:.85; }
+    .btn-submit:disabled { opacity:.45; cursor:not-allowed; }
+    .shine { position:absolute;top:0;left:-90%;width:55%;height:100%;
+      background:linear-gradient(90deg,transparent,rgba(255,255,255,.18),transparent);
+      transform:skewX(-20deg); transition:left .5s; }
+    .btn-submit:hover .shine { left:145%; }
+
+    .status-box { margin-top:14px; padding:11px 14px; border-radius:12px; font-size:13px; font-weight:600; display:none; }
+    .status-box.error   { display:block; background:rgba(255,59,48,.10); border:1px solid rgba(255,59,48,.28); color:#ff6b6b; }
+    .status-box.success { display:block; background:rgba(48,209,88,.10); border:1px solid rgba(48,209,88,.28); color:#34d399; }
+
+    .spin { display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,.3);
+      border-top-color:#fff;border-radius:50%;animation:sp .55s linear infinite;
+      vertical-align:middle;margin-right:8px; }
+    @keyframes sp { to{transform:rotate(360deg)} }
+
+    .card-foot { margin-top:22px; text-align:center; font-size:13px; color:rgba(255,255,255,.40); }
+    .card-foot a { color:#007aff; font-weight:700; text-decoration:none; }
+    .card-foot a:hover { text-decoration:underline; }
+  </style>
 </head>
 <body>
-    <div class="glow-blob blob-purple"></div>
-    <div class="glow-blob blob-blue"></div>
+  <div class="orb o1"></div>
+  <div class="orb o2"></div>
+  <div class="noise"></div>
 
-    <div class="hyper-glass">
-        <div class="sentinel-header flex justify-between items-center">
-            <div class="flex items-center space-x-3">
-                <svg width="30" height="30" viewBox="0 0 512 512" fill="none">
-                    <path d="M256 46C158.4 46 72 108.8 72 206.4V318.4C72 411.2 158.4 466 256 466C353.6 466 440 411.2 440 318.4V206.4C440 108.8 353.6 46 256 46Z" stroke="white" stroke-width="15"/>
-                    <path d="M190 200C190 200 220 190 256 190C292 190 322 200 322 200V350C322 350 292 340 256 340C220 340 190 350 190 350V200Z" fill="white"/>
-                    <circle cx="256" cy="120" r="22" fill="#007aff" />
-                </svg>
-                <span class="text-lg font-bold">iNotes Sentinel</span>
-            </div>
-            <div class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-        </div>
-
-        <div class="p-10 pt-8">
-            <h1 class="text-4xl font-black mb-2">Register</h1>
-            <p class="text-gray-500 text-sm mb-10 font-bold uppercase tracking-widest">Secure Tunnel Entry</p>
-
-            <form id="regForm" class="space-y-8">
-                <input type="text" id="regUser" placeholder="Username" required class="input-hyper">
-                <input type="password" id="regPass" placeholder="Password" required class="input-hyper">
-                <button type="submit" id="regBtn" class="w-full py-5 rounded-2xl font-black text-xl btn-click-effect mt-6 uppercase">Register Securely</button>
-            </form>
-            <p class="mt-10 text-center text-gray-500 text-sm">Registered? <a href="login.html" class="text-blue-500 font-bold">Sign In</a></p>
-        </div>
+  <div class="card">
+    <div class="card-head">
+      <div class="head-brand">
+        <div class="head-icon">🛡</div>
+        <span class="head-name">iNotes Sentinel</span>
+      </div>
+      <div class="head-dot"></div>
     </div>
 
-    <script>
-        document.getElementById('regForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const user = document.getElementById('regUser').value;
-            const pass = document.getElementById('regPass').value;
-            const btn = document.getElementById('regBtn');
-            btn.innerText = "PROCESSING...";
-            try {
-                const res = await fetch('/api/register', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ user, pass }) });
-                const data = await res.json();
-                if (data.success) { alert("Account Created!"); window.location.href = 'login.html'; }
-                else { alert(data.message); btn.innerText = "Register Securely"; }
-            } catch (err) { alert("Server Error"); btn.innerText = "Register Securely"; }
+    <div class="card-body">
+      <h1 class="title">Register</h1>
+      <p class="subtitle">Secure Tunnel Entry</p>
+
+      <div class="field">
+        <label class="field-label" for="regUser">Username</label>
+        <input class="field-input" id="regUser" type="text" placeholder="Choose a username"
+               autocomplete="off" autocapitalize="none" spellcheck="false" />
+      </div>
+
+      <div class="field">
+        <label class="field-label" for="regPass">Password</label>
+        <input class="field-input" id="regPass" type="password" placeholder="Min. 4 characters"
+               autocomplete="new-password" oninput="checkStrength(this.value)" />
+        <div class="strength-wrap"><div class="strength-bar" id="sBar"></div></div>
+      </div>
+
+      <button class="btn-submit" id="regBtn" onclick="handleRegister()">
+        <span class="shine"></span>
+        <span id="btnLabel">Register Securely</span>
+      </button>
+
+      <div class="status-box" id="statusBox"></div>
+
+      <div class="card-foot">
+        Already registered? <a href="login.html">Sign In</a>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function checkStrength(val) {
+      const bar = document.getElementById('sBar');
+      let pct = 0, col = '#ff3b30';
+      if (val.length >= 4)  { pct = 33; col = '#ff9500'; }
+      if (val.length >= 8)  { pct = 66; col = '#007aff'; }
+      if (val.length >= 12) { pct = 100; col = '#30d158'; }
+      bar.style.width = pct + '%';
+      bar.style.background = col;
+    }
+
+    function showStatus(msg, type) {
+      const el = document.getElementById('statusBox');
+      el.textContent = msg;
+      el.className = 'status-box ' + type;
+    }
+
+    function setLoading(on) {
+      const btn = document.getElementById('regBtn');
+      const lbl = document.getElementById('btnLabel');
+      btn.disabled = on;
+      lbl.innerHTML = on ? '<span class="spin"></span>Processing…' : 'Register Securely';
+    }
+
+    async function handleRegister() {
+      showStatus('', '');
+      // ✅ Exact field names: { user, pass } — matches server.js §23
+      const user = document.getElementById('regUser').value.trim();
+      const pass = document.getElementById('regPass').value.trim();
+
+      if (!user)        return showStatus('⚠ Username is required.', 'error');
+      if (user.length < 3) return showStatus('⚠ Username must be at least 3 characters.', 'error');
+      if (!pass)        return showStatus('⚠ Password is required.', 'error');
+      if (pass.length < 4) return showStatus('⚠ Password must be at least 4 characters.', 'error');
+
+      setLoading(true);
+      try {
+        const res = await fetch('/api/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ user, pass }),
         });
-    </script>
+        const ct = res.headers.get('content-type') || '';
+        if (!ct.includes('application/json'))
+          throw new Error(`Server error ${res.status}. Is server running?`);
+
+        const data = await res.json();
+        if (data.success) {
+          showStatus('✅ Account created! Redirecting to login…', 'success');
+          localStorage.setItem('reg_user', data.username);
+          setTimeout(() => { window.location.href = 'login.html'; }, 1500);
+        } else {
+          showStatus('❌ ' + (data.message || 'Registration failed.'), 'error');
+        }
+      } catch (e) {
+        showStatus('⚠ ' + e.message, 'error');
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    document.addEventListener('keydown', (e) => { if (e.key === 'Enter') handleRegister(); });
+  </script>
 </body>
 </html>
-
