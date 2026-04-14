@@ -143,6 +143,26 @@ bot.action("CB_TODAY", async (ctx) => {
   } catch (e) { ctx.reply(`❌ ${e.message}`); }
 });
 
+const rateLimit = require('express-rate-limit');
+
+// Render/Proxy support ke liye ye zaroori hai
+app.set('trust proxy', 1);
+
+const registrationLimiter = rateLimit({
+    windowMs: 30 * 60 * 1000, // 30 minutes
+    max: 5, // Max 5 requests per IP
+    message: {
+        status: 429,
+        error: "Bahut zyada registration attempts! 30 minute baad try karein."
+    },
+    standardHeaders: true,
+    legacyHeaders: false,
+});
+
+// Sirf register route par apply karne ke liye
+app.use('/api/register', registrationLimiter);
+
+
 // ─────────────────────────────────────────────────────────────────────────────
 //  §12  CB_GENKEY prompt
 // ─────────────────────────────────────────────────────────────────────────────
