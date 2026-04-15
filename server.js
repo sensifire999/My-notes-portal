@@ -18,11 +18,12 @@ const { createClient }     = require("@supabase/supabase-js");
 // ─────────────────────────────────────────────────────────────────────────────
 //  §2  ENVIRONMENT VARIABLES (set in Render Dashboard → Environment)
 // ─────────────────────────────────────────────────────────────────────────────
-const PORT         = process.env.PORT         || 10000;
-const SUPABASE_URL = process.env.SUPABASE_URL || "https://jecckogefamxionqdbby.supabase.co";
-const SUPABASE_KEY = process.env.SUPABASE_KEY || "sb_publishable_qTXtquSTGI6VqJbuscf1lw_BA1AhG-_";
-const BOT_TOKEN    = process.env.BOT_TOKEN    || "8618816305:AAEcABZIZJtkIB5gRUq43bNtXYh82U0yZZc";
-const ADMIN_ID     = Number(process.env.ADMIN_ID) || 8084057668;
+const PORT               = process.env.PORT               || 10000;
+const SUPABASE_URL       = process.env.SUPABASE_URL       || "https://jecckogefamxionqdbby.supabase.co";
+const SUPABASE_KEY       = process.env.SUPABASE_KEY       || "sb_publishable_qTXtquSTGI6VqJbuscf1lw_BA1AhG-_";
+const BOT_TOKEN          = process.env.BOT_TOKEN          || "8618816305:AAEcABZIZJtkIB5gRUq43bNtXYh82U0yZZc";
+const ADMIN_ID           = Number(process.env.ADMIN_ID)   || 8084057668;
+const TURNSTILE_SECRET   = process.env.TURNSTILE_SECRET   || "0x4AAAAAAC9iELWsib3LD7Wv";
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  §3  STARTUP ENV VALIDATION — crash early with a clear message
@@ -68,6 +69,32 @@ function generateKey() {
   let s = "";
   for (let i = 0; i < 4; i++) s += P[Math.floor(Math.random() * P.length)];
   return `VIP-${s}-ANAND`;
+}
+
+// ─────────────────────────────────────────────────────────────────────────────
+//  §6b  CLOUDFLARE TURNSTILE VERIFICATION HELPER
+// ─────────────────────────────────────────────────────────────────────────────
+async function verifyTurnstile(token, ip) {
+  if (!token) return { success: false, error: "Turnstile token missing." };
+  try {
+    const body = new URLSearchParams({
+      secret:   TURNSTILE_SECRET,
+      response: token,
+    });
+    if (ip) body.append("remoteip", ip);
+
+    const r = await fetch("https://challenges.cloudflare.com/turnstile/v0/siteverify", {
+      method:  "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body:    body.toString(),
+    });
+    const data = await r.json();
+    if (data.success) return { success: true };
+    return { success: false, error: "Bot check failed. Please try again." };
+  } catch (e) {
+    console.error("[Turnstile]", e.message);
+    return { success: false, error: "Verification service unavailable. Try again." };
+  }
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -149,8 +176,8 @@ const rateLimit = require('express-rate-limit');
 app.set('trust proxy', 1);
 
 const registrationLimiter = rateLimit({
-    windowMs: 30 * 60 * 1000, // 30 minutes
-    max: 5, // Max 5 requests per IP
+    windowMs: 30 * 60 * 1000,
+    max: 5,
     message: {
         status: 429,
         error: "Bahut zyada registration attempts! 30 minute baad try karein."
@@ -159,9 +186,7 @@ const registrationLimiter = rateLimit({
     legacyHeaders: false,
 });
 
-// Sirf register route par apply karne ke liye
 app.use('/api/register', registrationLimiter);
-
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  §12  CB_GENKEY prompt
@@ -367,7 +392,6 @@ app.get("/api/all-notes", async (req, res) => {
 
 // ─────────────────────────────────────────────────────────────────────────────
 //  §22  REST — GET /api/key-info?key=VIP-XXXX-ANAND
-//  Used by dashboard.html to show expiry on each card
 // ─────────────────────────────────────────────────────────────────────────────
 app.get("/api/key-info", async (req, res) => {
   try {
@@ -400,13 +424,18 @@ app.get("/api/key-info", async (req, res) => {
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
-//  §23  REST — POST /api/register
-//  login.html sends { username, password }
-//  register.html sends { user, pass }
-//  We handle BOTH field name styles here
+//  §23  REST — POST /api/register  ✅ TURNSTILE PROTECTED
+//  register.html sends: { user, pass, cf_token }
 // ─────────────────────────────────────────────────────────────────────────────
 app.post("/api/register", async (req, res) => {
   try {
+    // ── Turnstile verification ──────────────────────────────────────────────
+    const cfToken = req.body["cf_token"] || req.body["cf-turnstile-response"];
+    const clientIp = req.ip || req.headers["x-forwarded-for"];
+    const tsResult = await verifyTurnstile(cfToken, clientIp);
+    if (!tsResult.success)
+      return res.status(403).json({ success: false, message: tsResult.error });
+
     // Accept both { user, pass } AND { username, password } for compatibility
     const rawUser = req.body.user || req.body.username;
     const rawPass = req.body.pass || req.body.password;
@@ -421,7 +450,6 @@ app.post("/api/register", async (req, res) => {
     const cleanUser = String(rawUser).trim().toLowerCase();
     const cleanPass = String(rawPass).trim();
 
-    // Check duplicate
     const { data: existing, error: chkErr } = await supabase
       .from("users").select("username").eq("username", cleanUser).maybeSingle();
     if (chkErr) {
@@ -445,11 +473,18 @@ app.post("/api/register", async (req, res) => {
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
-//  §24  REST — POST /api/login
-//  login.html sends: { username, password }
+//  §24  REST — POST /api/login  ✅ TURNSTILE PROTECTED
+//  login.html sends: { username, password, cf_token }
 // ─────────────────────────────────────────────────────────────────────────────
 app.post("/api/login", async (req, res) => {
   try {
+    // ── Turnstile verification ──────────────────────────────────────────────
+    const cfToken = req.body["cf_token"] || req.body["cf-turnstile-response"];
+    const clientIp = req.ip || req.headers["x-forwarded-for"];
+    const tsResult = await verifyTurnstile(cfToken, clientIp);
+    if (!tsResult.success)
+      return res.status(403).json({ success: false, message: tsResult.error });
+
     const { username, password } = req.body;
 
     if (!username || String(username).trim() === "")
@@ -474,11 +509,17 @@ app.post("/api/login", async (req, res) => {
 });
 
 // ─────────────────────────────────────────────────────────────────────────────
-//  §25  REST — POST /api/verify-key
-//  dashboard.html sends: { username, key_code }
-//  7-step activation hub
+//  §25  REST — POST /api/verify-key  ✅ TURNSTILE PROTECTED
+//  dashboard.html sends: { username, key_code, cf_token }
 // ─────────────────────────────────────────────────────────────────────────────
 app.post("/api/verify-key", async (req, res) => {
+  // ── Turnstile verification ────────────────────────────────────────────────
+  const cfToken  = req.body["cf_token"] || req.body["cf-turnstile-response"];
+  const clientIp = req.ip || req.headers["x-forwarded-for"];
+  const tsResult = await verifyTurnstile(cfToken, clientIp);
+  if (!tsResult.success)
+    return res.status(403).json({ success: false, message: tsResult.error });
+
   const { username, key_code } = req.body;
 
   // A — validate
@@ -513,7 +554,7 @@ app.post("/api/verify-key", async (req, res) => {
   if (now.isAfter(expiry))
     return res.status(410).json({ success: false, message: `Key expired on ${fmtDate(keyRec.expiry_time)}.` });
 
-  // E — check if user exists (maybeSingle — never crashes on miss)
+  // E — check if user exists
   let existingUser = null;
   try {
     const { data, error } = await supabase
@@ -524,7 +565,7 @@ app.post("/api/verify-key", async (req, res) => {
     return res.status(500).json({ success: false, message: "Server error checking user." });
   }
 
-  // F — insert new user
+  // F — insert new user if not exists
   if (!existingUser) {
     try {
       const { error } = await supabase.from("users").insert({ username: cleanUser, password: cleanKey });
