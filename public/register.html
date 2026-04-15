@@ -6,6 +6,8 @@
   <title>iNotes | Register</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Figtree:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <!-- Cloudflare Turnstile -->
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -87,8 +89,15 @@
     .strength-wrap { height:3px; background:rgba(255,255,255,.06); border-radius:2px; margin-top:7px; overflow:hidden; }
     .strength-bar  { height:100%; border-radius:2px; width:0; transition:width .3s,background .3s; }
 
+    /* Turnstile wrapper */
+    .turnstile-wrap {
+      display: flex;
+      justify-content: center;
+      margin: 18px 0 4px;
+    }
+
     .btn-submit {
-      width:100%; margin-top:10px;
+      width:100%; margin-top:16px;
       background:linear-gradient(135deg,#007aff 0%,#0050cc 100%);
       border:none; border-radius:14px; padding:15px;
       font-family:'Figtree',sans-serif; font-size:15px; font-weight:800; color:#fff;
@@ -149,6 +158,16 @@
         <div class="strength-wrap"><div class="strength-bar" id="sBar"></div></div>
       </div>
 
+      <!-- Cloudflare Turnstile Widget -->
+      <div class="turnstile-wrap">
+        <div class="cf-turnstile"
+             id="registerTurnstile"
+             data-sitekey="0x4AAAAAAC9iECY5KY2sRA4lxM1VVuYeP90"
+             data-theme="dark"
+             data-size="normal">
+        </div>
+      </div>
+
       <button class="btn-submit" id="regBtn" onclick="handleRegister()">
         <span class="shine"></span>
         <span id="btnLabel">Register Securely</span>
@@ -188,21 +207,24 @@
 
     async function handleRegister() {
       showStatus('', '');
-      // ✅ Exact field names: { user, pass } — matches server.js §23
       const user = document.getElementById('regUser').value.trim();
       const pass = document.getElementById('regPass').value.trim();
 
-      if (!user)        return showStatus('⚠ Username is required.', 'error');
+      if (!user)           return showStatus('⚠ Username is required.', 'error');
       if (user.length < 3) return showStatus('⚠ Username must be at least 3 characters.', 'error');
-      if (!pass)        return showStatus('⚠ Password is required.', 'error');
+      if (!pass)           return showStatus('⚠ Password is required.', 'error');
       if (pass.length < 4) return showStatus('⚠ Password must be at least 4 characters.', 'error');
+
+      // ── Get Turnstile token ──────────────────────────────────────────────
+      const cf_token = turnstile.getResponse(document.getElementById('registerTurnstile'));
+      if (!cf_token) return showStatus('⚠ Please complete the bot verification.', 'error');
 
       setLoading(true);
       try {
         const res = await fetch('/api/register', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ user, pass }),
+          body: JSON.stringify({ user, pass, cf_token }),
         });
         const ct = res.headers.get('content-type') || '';
         if (!ct.includes('application/json'))
@@ -214,9 +236,12 @@
           localStorage.setItem('reg_user', data.username);
           setTimeout(() => { window.location.href = 'login.html'; }, 1500);
         } else {
+          // Reset Turnstile on failure so user can retry
+          turnstile.reset(document.getElementById('registerTurnstile'));
           showStatus('❌ ' + (data.message || 'Registration failed.'), 'error');
         }
       } catch (e) {
+        turnstile.reset(document.getElementById('registerTurnstile'));
         showStatus('⚠ ' + e.message, 'error');
       } finally {
         setLoading(false);

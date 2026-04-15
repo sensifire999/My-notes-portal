@@ -6,6 +6,8 @@
   <title>iNotes | Login</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Figtree:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <!-- Cloudflare Turnstile -->
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -18,7 +20,6 @@
       overflow: hidden; padding: 20px;
     }
 
-    /* orbs */
     .orb { position:fixed;border-radius:50%;pointer-events:none;z-index:0; }
     .o1 { width:600px;height:600px;background:radial-gradient(circle,rgba(0,60,200,0.35) 0%,transparent 65%);filter:blur(100px);top:-180px;left:-160px;animation:d1 20s ease-in-out infinite alternate; }
     .o2 { width:450px;height:450px;background:radial-gradient(circle,rgba(80,30,200,0.22) 0%,transparent 65%);filter:blur(90px);bottom:-120px;right:-120px;animation:d2 16s ease-in-out infinite alternate; }
@@ -30,7 +31,6 @@
       background-size:180px;
     }
 
-    /* card */
     .card {
       position: relative; z-index: 10;
       width: 100%; max-width: 440px;
@@ -52,7 +52,6 @@
     }
     @keyframes rise { from{opacity:0;transform:translateY(28px) scale(.96)} to{opacity:1;transform:translateY(0) scale(1)} }
 
-    /* header */
     .card-head {
       background: rgba(20,20,24,0.90);
       border-bottom: 1px solid rgba(255,255,255,0.07);
@@ -70,7 +69,6 @@
     .head-dot { width:8px;height:8px;background:#30d158;border-radius:50%;box-shadow:0 0 6px #30d158;animation:blink 2.2s infinite; }
     @keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
 
-    /* body */
     .card-body { padding: 36px 32px 32px; }
 
     .title {
@@ -85,7 +83,6 @@
       margin-bottom: 34px;
     }
 
-    /* inputs */
     .field { margin-bottom: 20px; }
     .field-label {
       display: block; font-size: 10.5px; font-weight: 700;
@@ -109,9 +106,15 @@
       box-shadow: 0 0 0 3px rgba(0,122,255,.12);
     }
 
-    /* button */
+    /* Turnstile wrapper — center the widget */
+    .turnstile-wrap {
+      display: flex;
+      justify-content: center;
+      margin: 18px 0 4px;
+    }
+
     .btn-submit {
-      width: 100%; margin-top: 8px;
+      width: 100%; margin-top: 16px;
       background: linear-gradient(135deg, #007aff 0%, #0050cc 100%);
       border: none; border-radius: 14px; padding: 15px;
       font-family: 'Figtree', sans-serif;
@@ -128,7 +131,6 @@
       transform:skewX(-20deg); transition:left .5s; }
     .btn-submit:hover .shine { left:145%; }
 
-    /* error box */
     .err-box {
       margin-top: 14px; padding: 11px 14px; border-radius: 12px;
       font-size: 13px; font-weight: 600; display: none;
@@ -137,7 +139,6 @@
     }
     .err-box.show { display: block; }
 
-    /* spinner */
     .spin { display:inline-block;width:16px;height:16px;border:2px solid rgba(255,255,255,.3);
       border-top-color:#fff;border-radius:50%;animation:sp .55s linear infinite;
       vertical-align:middle;margin-right:8px; }
@@ -177,6 +178,16 @@
                autocomplete="current-password" />
       </div>
 
+      <!-- Cloudflare Turnstile Widget -->
+      <div class="turnstile-wrap">
+        <div class="cf-turnstile"
+             id="loginTurnstile"
+             data-sitekey="0x4AAAAAAC9iECY5KY2sRA4lxM1VVuYeP90"
+             data-theme="dark"
+             data-size="normal">
+        </div>
+      </div>
+
       <button class="btn-submit" id="loginBtn" onclick="handleLogin()">
         <span class="shine"></span>
         <span id="btnLabel">Authorize Access</span>
@@ -210,19 +221,22 @@
 
     async function handleLogin() {
       hideErr();
-      // ✅ Exact field names: { username, password } — matches server.js §24
       const username = document.getElementById('username').value.trim();
       const password = document.getElementById('password').value.trim();
 
       if (!username) return showErr('⚠ Username is required.');
       if (!password) return showErr('⚠ Password is required.');
 
+      // ── Get Turnstile token ──────────────────────────────────────────────
+      const cf_token = turnstile.getResponse(document.getElementById('loginTurnstile'));
+      if (!cf_token) return showErr('⚠ Please complete the bot verification.');
+
       setLoading(true);
       try {
         const res  = await fetch('/api/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ username, password }),
+          body: JSON.stringify({ username, password, cf_token }),
         });
         const ct = res.headers.get('content-type') || '';
         if (!ct.includes('application/json'))
@@ -233,9 +247,12 @@
           localStorage.setItem('sentinel_user', data.username);
           window.location.href = '/dashboard';
         } else {
+          // Reset Turnstile so user can try again
+          turnstile.reset(document.getElementById('loginTurnstile'));
           showErr('❌ ' + (data.message || 'Login failed.'));
         }
       } catch (e) {
+        turnstile.reset(document.getElementById('loginTurnstile'));
         showErr('⚠ ' + e.message);
       } finally {
         setLoading(false);

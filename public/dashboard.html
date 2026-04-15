@@ -6,6 +6,8 @@
   <title>Sentinel | Secure Vault</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=Figtree:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet" />
+  <!-- Cloudflare Turnstile -->
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -70,18 +72,32 @@
     .key-body { padding:36px 32px 32px; }
     .key-title { font-family:'DM Serif Display',serif;font-size:30px;letter-spacing:-.02em;margin-bottom:6px; }
     .key-sub { font-size:11px;font-weight:700;letter-spacing:.10em;text-transform:uppercase;color:var(--t35);margin-bottom:8px; }
-    .key-dm-link { display:inline-block;font-size:12px;font-weight:700;color:var(--blue);margin-bottom:28px;text-decoration:none; }
+    .key-dm-link { display:inline-block;font-size:12px;font-weight:700;color:var(--blue);margin-bottom:20px;text-decoration:none; }
     .key-dm-link:hover { text-decoration:underline; }
+
+    /* Expired notice inside overlay */
+    .key-expired-notice {
+      display:none; margin-bottom:16px;
+      padding:10px 14px; border-radius:11px; font-size:13px; font-weight:600;
+      background:rgba(255,149,0,.10); border:1px solid rgba(255,149,0,.30); color:#ff9500;
+    }
+    .key-expired-notice.show { display:block; }
 
     .key-input {
       width:100%;background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.10);
       border-radius:13px;padding:14px 16px;text-align:center;
       font-family:'Figtree',sans-serif;font-size:18px;font-weight:800;
       color:var(--blue);letter-spacing:.25em;text-transform:uppercase;outline:none;
-      transition:border-color .2s,box-shadow .2s;margin-bottom:20px;
+      transition:border-color .2s,box-shadow .2s;margin-bottom:16px;
     }
     .key-input::placeholder{color:rgba(0,122,255,.35);letter-spacing:.15em;}
     .key-input:focus{border-color:rgba(0,122,255,.55);box-shadow:0 0 0 3px rgba(0,122,255,.12);}
+
+    /* Turnstile wrapper inside key overlay */
+    .turnstile-wrap {
+      display:flex; justify-content:center;
+      margin-bottom:16px;
+    }
 
     .key-btn {
       width:100%;background:linear-gradient(135deg,#007aff,#0050cc);
@@ -92,6 +108,7 @@
     }
     .key-btn:hover{transform:translateY(-1px);box-shadow:0 8px 32px rgba(0,122,255,.45);}
     .key-btn:active{transform:translateY(0);}
+    .key-btn:disabled{opacity:.45;cursor:not-allowed;}
     .key-err { margin-top:12px;padding:10px 14px;border-radius:11px;font-size:13px;font-weight:600;
       background:rgba(255,59,48,.10);border:1px solid rgba(255,59,48,.28);color:#ff6b6b;display:none; }
     .key-err.show { display:block; }
@@ -183,10 +200,6 @@
     .note-card:hover { transform:translateY(-4px);background:rgba(255,255,255,.072);border-color:rgba(0,122,255,.22);box-shadow:inset 0 1px 0 rgba(255,255,255,.10),0 12px 40px rgba(0,0,0,.48),0 0 0 1px rgba(0,122,255,.12); }
     @keyframes cardIn{from{opacity:0;transform:translateY(20px) scale(.97)}to{opacity:1;transform:translateY(0) scale(1)}}
 
-    .card-expiry { font-size:10px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--t35);text-align:center;padding-bottom:12px;border-bottom:1px solid rgba(255,255,255,.06); }
-    .card-expiry.warn { color:#ff9500; }
-    .card-expiry.expired { color:#ff3b30; }
-
     .card-icon-row { display:flex;align-items:center;gap:12px; }
     .card-icon { width:46px;height:46px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:21px;flex-shrink:0; }
     .ci-0{background:rgba(0,122,255,.13);}  .ci-1{background:rgba(48,209,88,.12);}
@@ -194,7 +207,6 @@
     .ci-4{background:rgba(255,59,48,.11);}  .ci-5{background:rgba(255,214,10,.11);}
 
     .card-subject { font-family:'DM Serif Display',serif;font-size:17px;letter-spacing:-.015em;line-height:1.25;flex:1; }
-
     .card-date { font-size:11px;font-weight:500;color:var(--t35); }
 
     .btn-view {
@@ -257,12 +269,28 @@
       <div class="key-body">
         <h2 class="key-title">Vault Locked</h2>
         <p class="key-sub">Key Required to Proceed</p>
+
+        <!-- Expired notice — shown when old key expired -->
+        <div class="key-expired-notice" id="expiredNotice">
+          ⏰ Your previous key has expired. Enter a new key to continue.
+        </div>
+
         <a href="https://www.instagram.com/desi_anand_yt?igsh=ZjcwbHlzcTNibXJo" target="_blank" class="key-dm-link">
           📩 DM @desi_anand_yt for your access key →
         </a>
 
         <input type="text" id="accessKey" class="key-input" placeholder="VIP-XXXX-ANAND"
                oninput="this.value=this.value.toUpperCase()" autocomplete="off" />
+
+        <!-- Cloudflare Turnstile Widget -->
+        <div class="turnstile-wrap">
+          <div class="cf-turnstile"
+               id="vaultTurnstile"
+               data-sitekey="0x4AAAAAAC9iECY5KY2sRA4lxM1VVuYeP90"
+               data-theme="dark"
+               data-size="normal">
+          </div>
+        </div>
 
         <button class="key-btn" id="unlockBtn" onclick="unlockVault()">
           <span style="position:absolute;top:0;left:-90%;width:55%;height:100%;background:linear-gradient(90deg,transparent,rgba(255,255,255,.18),transparent);transform:skewX(-20deg);transition:left .5s;" id="btnShine"></span>
@@ -332,25 +360,69 @@
   <script>
     const ICONS = ['📘','📗','📕','📙','📔','📓','🔬','🧮','⚗️','🌐','💡','📐','📊','🗂','📑','🔭'];
     const user      = localStorage.getItem('sentinel_user');
-    const activeKey = localStorage.getItem('sentinel_key');
+    let   activeKey = localStorage.getItem('sentinel_key');
     let   allNotes  = [];
 
-    // ── Auth guard ────────────────────────────────────────────────────────────
+    // ── Auth guard ─────────────────────────────────────────────────────────────
     if (!user) window.location.replace('/');
 
-    // ── Boot: check if key already unlocked ───────────────────────────────────
-    window.addEventListener('DOMContentLoaded', () => {
+    // ── Boot: check if key already unlocked AND still valid ───────────────────
+    window.addEventListener('DOMContentLoaded', async () => {
       if (activeKey) {
-        showDashboard();
-        loadDashboard();
+        // Verify key validity BEFORE showing dashboard
+        const valid = await checkKeyValidity(activeKey);
+        if (valid) {
+          showDashboard();
+          loadDashboard();
+        } else {
+          // Key expired — clear it and show overlay with expiry notice
+          forceKeyReEntry(true);
+        }
       }
+      // else: keyOverlay is already visible by default, user must enter key
     });
 
+    // ── Check key validity against server ────────────────────────────────────
+    async function checkKeyValidity(key) {
+      try {
+        const res  = await fetch('/api/key-info?key=' + encodeURIComponent(key));
+        const data = await res.json();
+        if (!data.success) return false;
+        if (data.expired)  return false;
+        return true;
+      } catch { return false; }
+    }
+
+    // ── Force user back to key entry (called on expiry) ───────────────────────
+    function forceKeyReEntry(showExpiredMsg = false) {
+      // Clear expired key from storage
+      localStorage.removeItem('sentinel_key');
+      activeKey = null;
+
+      // Show expired notice if needed
+      if (showExpiredMsg) {
+        document.getElementById('expiredNotice').classList.add('show');
+      }
+
+      // Show overlay, hide dashboard
+      document.getElementById('keyOverlay').style.display = 'flex';
+      document.getElementById('mainNav').style.display    = 'none';
+      document.getElementById('mainContent').style.display = 'none';
+
+      // Reset Turnstile widget
+      if (typeof turnstile !== 'undefined') {
+        try { turnstile.reset(document.getElementById('vaultTurnstile')); } catch(e) {}
+      }
+
+      // Clear key input
+      document.getElementById('accessKey').value = '';
+      document.getElementById('keyErr').classList.remove('show');
+    }
+
     function showDashboard() {
-      document.getElementById('keyOverlay').style.display = 'none';
-      document.getElementById('mainNav').style.display    = '';
+      document.getElementById('keyOverlay').style.display  = 'none';
+      document.getElementById('mainNav').style.display     = '';
       document.getElementById('mainContent').style.display = '';
-      // Populate nav
       document.getElementById('navAvatar').textContent = user.charAt(0).toUpperCase();
       document.getElementById('navName').textContent   = user;
       document.getElementById('stUser').textContent    = user.length > 8 ? user.slice(0,7)+'…' : user;
@@ -363,7 +435,14 @@
       const err = document.getElementById('keyErr');
       if (!key) { showKeyErr('Please enter your access key.'); return; }
 
-      btn.textContent = 'VERIFYING…';
+      // ── Get Turnstile token ────────────────────────────────────────────────
+      const cf_token = typeof turnstile !== 'undefined'
+        ? turnstile.getResponse(document.getElementById('vaultTurnstile'))
+        : null;
+      if (!cf_token) { showKeyErr('⚠ Please complete the bot verification.'); return; }
+
+      btn.textContent  = 'VERIFYING…';
+      btn.disabled     = true;
       btn.style.opacity = '.65';
       err.classList.remove('show');
 
@@ -371,25 +450,34 @@
         const res = await fetch('/api/verify-key', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          // ✅ Exact field names: { username, key_code } — matches server.js §25
-          body: JSON.stringify({ username: user, key_code: key }),
+          body: JSON.stringify({ username: user, key_code: key, cf_token }),
         });
         const ct = res.headers.get('content-type') || '';
         if (!ct.includes('application/json')) throw new Error(`Server error ${res.status}`);
         const data = await res.json();
 
         if (data.success) {
+          activeKey = key;
           localStorage.setItem('sentinel_key', key);
+          // Hide expiry notice in case it was shown
+          document.getElementById('expiredNotice').classList.remove('show');
           showDashboard();
           loadDashboard();
         } else {
+          // Reset Turnstile for retry
+          if (typeof turnstile !== 'undefined') {
+            try { turnstile.reset(document.getElementById('vaultTurnstile')); } catch(e) {}
+          }
           showKeyErr(data.message || 'Invalid or expired key.');
-          btn.textContent = 'AUTHORIZE SESSION';
-          btn.style.opacity = '1';
         }
       } catch (e) {
+        if (typeof turnstile !== 'undefined') {
+          try { turnstile.reset(document.getElementById('vaultTurnstile')); } catch(ex) {}
+        }
         showKeyErr('⚠ ' + e.message);
-        btn.textContent = 'AUTHORIZE SESSION';
+      } finally {
+        btn.textContent  = 'AUTHORIZE SESSION';
+        btn.disabled     = false;
         btn.style.opacity = '1';
       }
     }
@@ -400,29 +488,55 @@
       el.classList.add('show');
     }
 
-    // ── Load dashboard data ────────────────────────────────────────────────────
+    // ── Load dashboard data ───────────────────────────────────────────────────
     async function loadDashboard() {
       await Promise.all([loadNotes(), loadKeyInfo()]);
     }
 
     async function loadKeyInfo() {
+      if (!activeKey) return;
       try {
         const res  = await fetch('/api/key-info?key=' + encodeURIComponent(activeKey));
         const data = await res.json();
         const el   = document.getElementById('stExp');
+
         if (data.success) {
+          // ── KEY EXPIRY CHECK — re-prompt if expired ──────────────────────
+          if (data.expired) {
+            forceKeyReEntry(true);
+            return;
+          }
+
           const expiry = new Date(data.expiry);
           const diff   = Math.max(0, Math.round((expiry - Date.now()) / 60000));
+
+          if (diff === 0) {
+            // Expired right now — force re-entry
+            forceKeyReEntry(true);
+            return;
+          }
+
           el.textContent = diff > 60
             ? Math.round(diff / 60) + 'h'
             : diff + 'm';
           el.title = data.expiry_fmt;
-          if (diff < 30) el.style.color = '#ff9500';
-          if (diff === 0) el.style.color = '#ff3b30';
+
+          if (diff <= 30) el.style.color = '#ff9500';
+          if (diff <= 5)  el.style.color = '#ff3b30';
+
+          // ── Auto re-check when key is about to expire ──────────────────
+          // Check again 1 minute after expected expiry
+          if (diff > 0) {
+            setTimeout(() => {
+              if (activeKey) loadKeyInfo();
+            }, (diff * 60 * 1000) + 5000);
+          }
         } else {
-          el.textContent = 'OK';
+          el.textContent = '–';
         }
-      } catch { document.getElementById('stExp').textContent = 'OK'; }
+      } catch {
+        document.getElementById('stExp').textContent = '–';
+      }
     }
 
     async function loadNotes() {
@@ -484,11 +598,9 @@
         let id = '';
         if (url.includes('/d/'))  id = url.split('/d/')[1]?.split('/')[0];
         if (url.includes('id='))  id = url.split('id=')[1]?.split('&')[0];
-        // Use /preview instead of viewer — hides Share/Download toolbar
         if (id) embedUrl = `https://drive.google.com/file/d/${id}/preview`;
       }
       if (!embedUrl) {
-        // Fallback for non-Drive URLs
         embedUrl = `https://docs.google.com/viewer?url=${encodeURIComponent(url)}&embedded=true`;
       }
       document.getElementById('pdfFrame').src = embedUrl;
@@ -525,7 +637,6 @@
     document.addEventListener('keydown', (e) => {
       const modal = document.getElementById('pdfModal');
       if (!modal.classList.contains('open')) return;
-      // Block Ctrl+S (Save), Ctrl+P (Print), Ctrl+U (View Source), Ctrl+Shift+I (DevTools)
       if (e.ctrlKey && ['s','p','u'].includes(e.key.toLowerCase())) {
         e.preventDefault(); return false;
       }
@@ -534,7 +645,6 @@
       }
     });
 
-    // Block right-click on the whole page when PDF is open
     document.addEventListener('contextmenu', (e) => {
       if (document.getElementById('pdfModal').classList.contains('open')) {
         e.preventDefault(); return false;
